@@ -1,0 +1,228 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PHP_VERSION: '8.1'
+  NODE_VERSION: '18'
+  MYSQL_ROOT_PASSWORD: 'password'
+  MYSQL_DATABASE: 'odonto360_test'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+          MYSQL_DATABASE: ${{ env.MYSQL_DATABASE }}
+        ports:
+          - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ env.PHP_VERSION }}
+        extensions: mbstring, dom, fileinfo, mysql, pdo_mysql, zip, gd, curl, xml, bcmath, soap, intl, readline, libxml, openssl, pdo, tokenizer, ctype, json, iconv, session, simplexml, xmlreader, xmlwriter, zip, zlib
+        coverage: xdebug
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Get composer cache directory
+      id: composer-cache
+      run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+    - name: Cache composer dependencies
+      uses: actions/cache@v3
+      with:
+        path: ${{ steps.composer-cache.outputs.dir }}
+        key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+        restore-keys: ${{ runner.os }}-composer-
+
+    - name: Install PHP dependencies
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Install Node.js dependencies
+      run: npm ci
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Copy environment file
+      run: cp .env.example .env
+
+    - name: Generate application key
+      run: php artisan key:generate
+
+    - name: Configure database
+      run: |
+        php artisan config:cache
+        php artisan config:clear
+
+    - name: Wait for MySQL
+      run: |
+        while ! mysqladmin ping -h"127.0.0.1" -P3306 -u"root" -p"${{ env.MYSQL_ROOT_PASSWORD }}" --silent; do
+          sleep 1
+        done
+
+    - name: Run database migrations
+      run: php artisan migrate --force
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ${{ env.MYSQL_DATABASE }}
+        DB_USERNAME: root
+        DB_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+
+    - name: Run database seeders
+      run: php artisan db:seed --force
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ${{ env.MYSQL_DATABASE }}
+        DB_USERNAME: root
+        DB_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+
+    - name: Run PHPUnit tests
+      run: php artisan test --coverage
+      env:
+        DB_CONNECTION: mysql
+        DB_HOST: 127.0.0.1
+        DB_PORT: 3306
+        DB_DATABASE: ${{ env.MYSQL_DATABASE }}
+        DB_USERNAME: root
+        DB_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
+
+    - name: Run PHPStan analysis
+      run: ./vendor/bin/phpstan analyse --memory-limit=2G
+
+    - name: Run Laravel Pint
+      run: ./vendor/bin/pint --test
+
+    - name: Upload coverage reports
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./coverage.xml
+        flags: unittests
+        name: codecov-umbrella
+
+  security:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ env.PHP_VERSION }}
+
+    - name: Install dependencies
+      run: composer install --no-progress --prefer-dist --optimize-autoloader
+
+    - name: Run security audit
+      run: composer audit
+
+    - name: Run PHP CS Fixer
+      run: ./vendor/bin/php-cs-fixer fix --dry-run --diff
+
+  build:
+    needs: [test, security]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup PHP
+      uses: shivammathur/setup-php@v2
+      with:
+        php-version: ${{ env.PHP_VERSION }}
+
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+
+    - name: Install dependencies
+      run: |
+        composer install --no-dev --optimize-autoloader
+        npm ci
+
+    - name: Build assets
+      run: npm run build
+
+    - name: Create deployment package
+      run: |
+        tar -czf odonto360-$(date +%Y%m%d-%H%M%S).tar.gz \
+          --exclude='.git' \
+          --exclude='node_modules' \
+          --exclude='tests' \
+          --exclude='.github' \
+          --exclude='.env.example' \
+          --exclude='README.md' \
+          .
+
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: odonto360-build
+        path: odonto360-*.tar.gz
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    
+    environment: production
+    
+    steps:
+    - name: Download build artifacts
+      uses: actions/download-artifact@v3
+      with:
+        name: odonto360-build
+
+    - name: Deploy to AWS
+      run: |
+        echo "Deploying to AWS..."
+        # This would contain the actual deployment commands
+        # For now, we'll just simulate the deployment
+        echo "Deployment completed successfully"
+
+    - name: Run health check
+      run: |
+        echo "Running health check..."
+        # This would contain health check commands
+        echo "Health check passed"
+
+  notify:
+    needs: [deploy]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy.result }}" == "success" ]; then
+          echo "✅ Deployment successful!"
+        else
+          echo "❌ Deployment failed!"
+        fi

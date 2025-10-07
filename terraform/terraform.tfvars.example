@@ -1,0 +1,36 @@
+# Odonto360 - Terraform Variables Example
+# Copy this file to terraform.tfvars and fill in your values
+
+# AWS Configuration
+aws_region     = "us-east-1"
+aws_account_id = "123456789012"  # Replace with your AWS Account ID
+environment    = "production"
+
+# Database Configuration
+db_instance_class = "db.t3.micro"
+db_username       = "odonto360"
+db_password       = "your-secure-password-here"  # Change this!
+
+# ECS Configuration
+ecs_cpu          = 512
+ecs_memory       = 1024
+ecs_desired_count = 2
+
+# Application Configuration
+app_domain = "odonto360.com"
+
+# SSL Certificate (optional)
+ssl_certificate_arn = ""  # ARN of your SSL certificate if using HTTPS
+
+# Auto Scaling
+min_capacity = 1
+max_capacity = 10
+
+# Common Tags
+tags = {
+  Project     = "odonto360"
+  ManagedBy   = "terraform"
+  Environment = "production"
+  Owner       = "your-name"
+  CostCenter  = "engineering"
+}
