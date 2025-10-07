@@ -86,6 +86,12 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/dentists/{id}/schedule', [DentistController::class, 'updateSchedule'])->middleware('role:admin');
     Route::get('/dentists/profile/statistics', [DentistController::class, 'statistics'])->middleware('role:dentist');
     Route::get('/dentists/{id}/statistics', [DentistController::class, 'statistics'])->middleware('role:admin');
+    
+    // Dentist Dashboard specific routes
+    Route::get('/dentist/appointments/today', [DentistController::class, 'getTodayAppointments'])->middleware('role:dentist');
+    Route::get('/dentist/patients/recent', [DentistController::class, 'getRecentPatients'])->middleware('role:dentist');
+    Route::get('/dentist/charts/appointments-status', [DentistController::class, 'getAppointmentsStatusChart'])->middleware('role:dentist');
+    Route::get('/dentist/charts/monthly-revenue', [DentistController::class, 'getMonthlyRevenueChart'])->middleware('role:dentist');
 
     // Specializations (admin only)
     Route::apiResource('specializations', SpecializationController::class)->middleware('role:admin');

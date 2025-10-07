@@ -113,6 +113,12 @@
 @section('scripts')
 <script>
 $(document).ready(function() {
+    // Verificar se DataTable está disponível
+    if (typeof $.fn.DataTable === 'undefined') {
+        console.error('DataTable não está carregado!');
+        return;
+    }
+    
     // Inicializar DataTable
     $('#appointmentsTable').DataTable({
         responsive: true,

@@ -88,27 +88,40 @@
 
     <!-- Gráficos -->
     <div class="row">
-        <div class="col-xl-8 col-lg-7">
+        <div class="col-xl-4 col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Agendamentos por Mês</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Consultas por Status</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-area">
-                        <canvas id="appointmentsChart"></canvas>
+                    <div class="chart-pie pt-4 pb-2">
+                        <canvas id="statusChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
-
-        <div class="col-xl-4 col-lg-5">
+        
+        <div class="col-xl-4 col-lg-6">
             <div class="card shadow mb-4">
                 <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
-                    <h6 class="m-0 font-weight-bold text-primary">Procedimentos Mais Comuns</h6>
+                    <h6 class="m-0 font-weight-bold text-primary">Consultas por Dentista</h6>
                 </div>
                 <div class="card-body">
-                    <div class="chart-pie pt-4 pb-2">
-                        <canvas id="proceduresChart"></canvas>
+                    <div class="chart-area">
+                        <canvas id="dentistsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-xl-4 col-lg-12">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                    <h6 class="m-0 font-weight-bold text-primary">Receita Mensal</h6>
+                </div>
+                <div class="card-body">
+                    <div class="chart-area">
+                        <canvas id="revenueChart"></canvas>
                     </div>
                 </div>
             </div>
@@ -172,7 +185,10 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+
+
 $(document).ready(function() {
+    
     // Carregar dados do dashboard
     loadDashboardData();
     
@@ -181,18 +197,43 @@ $(document).ready(function() {
 });
 
 function loadDashboardData() {
-    // Implementar carregamento de dados via AJAX
+    console.log('Carregando dados do dashboard admin...');
+    
+    // Carregar estatísticas do dashboard
     $.ajax({
-        url: '/api/admin/dashboard-stats',
+        url: '/dashboard/stats',
         method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + localStorage.getItem('auth_token'),
-            'Accept': 'application/json'
-        },
+        dataType: 'json',
         success: function(response) {
+            console.log('Estatísticas recebidas:', response);
             if (response.success) {
                 updateDashboardStats(response.data);
+            } else {
+                console.log('Erro nas estatísticas:', response.message);
             }
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao carregar estatísticas do dashboard:', error, xhr.responseText);
+        }
+    });
+    
+    // Carregar dados dos gráficos
+    $.ajax({
+        url: '/admin/reports/data',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Dados dos gráficos recebidos:', response);
+            if (response.success) {
+                updateCharts(response.charts);
+            } else {
+                console.log('Erro nos dados dos gráficos:', response.message);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao carregar dados dos gráficos:', error);
+            console.error('Status:', status);
+            console.error('Response:', xhr.responseText);
         }
     });
 }
@@ -204,7 +245,95 @@ function updateDashboardStats(data) {
     $('#monthlyRevenue').text('R$ ' + (data.monthly_revenue || 0).toLocaleString('pt-BR', {minimumFractionDigits: 2}));
 }
 
+function updateCharts(chartsData) {
+    
+    // Atualizar gráfico de status
+    if (chartsData.status) {
+        updateStatusChart(chartsData.status);
+    }
+    
+    // Atualizar gráfico de dentistas
+    if (chartsData.dentists) {
+        updateDentistsChart(chartsData.dentists);
+    }
+    
+    // Atualizar gráfico de receita
+    if (chartsData.revenue) {
+        updateRevenueChart(chartsData.revenue);
+    }
+}
+
+function updateStatusChart(data) {
+    const ctx = document.getElementById('statusChart');
+    if (!ctx) return;
+    
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: data.labels || ['Agendado', 'Confirmado', 'Concluído', 'Cancelado'],
+            datasets: [{
+                data: data.data || [0, 0, 0, 0],
+                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function updateDentistsChart(data) {
+    const ctx = document.getElementById('dentistsChart');
+    if (!ctx) return;
+    
+    new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: data.labels || [],
+            datasets: [{
+                label: 'Agendamentos',
+                data: data.data || [],
+                backgroundColor: '#36A2EB'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function updateRevenueChart(data) {
+    const ctx = document.getElementById('revenueChart');
+    if (!ctx) return;
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels || [],
+            datasets: [{
+                label: 'Receita',
+                data: data.data || [],
+                borderColor: '#4BC0C0',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
 function initCharts() {
+    
+    // Verificar se o Chart.js está carregado
+    if (typeof Chart === 'undefined') {
+        console.error('Chart.js não está carregado!');
+        return;
+    }
+    
     // Gráfico de agendamentos por mês
     const appointmentsCtx = document.getElementById('appointmentsChart').getContext('2d');
     new Chart(appointmentsCtx, {

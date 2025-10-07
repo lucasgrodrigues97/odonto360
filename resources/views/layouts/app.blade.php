@@ -10,6 +10,8 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Font Awesome -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <!-- DataTables CSS -->
+    <link href="https://cdn.datatables.net/1.13.6/css/dataTables.bootstrap5.min.css" rel="stylesheet">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Custom CSS -->
@@ -85,9 +87,9 @@
                                         Estatísticas
                                     </a>
                                 </li>
-                            @elseif(auth()->user()->isAdmin())
+                            @elseif(auth()->user()->email === 'admin@odonto360.com' || (auth()->user()->roles && auth()->user()->roles->contains('name', 'admin')))
                                 <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                         <i class="fas fa-cog me-1"></i>
                                         Administração
                                     </a>
@@ -107,20 +109,39 @@
                     <ul class="navbar-nav">
                         @auth
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                                     <i class="fas fa-user me-1"></i>
                                     {{ auth()->user()->name }}
                                 </a>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu dropdown-menu-end">
                                     <li><a class="dropdown-item" href="{{ route('profile') }}">
-                                        <i class="fas fa-user-edit me-1"></i>
-                                        Perfil
+                                        <i class="fas fa-user me-2"></i>Meu Perfil
                                     </a></li>
+                                    <li><a class="dropdown-item" href="#">
+                                        <i class="fas fa-cog me-2"></i>Configurações
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="#">
+                                        <i class="fas fa-bell me-2"></i>Notificações
+                                    </a></li>
+                                    @if(auth()->user()->email === 'admin@odonto360.com' || (auth()->user()->roles && auth()->user()->roles->contains('name', 'admin')))
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.patients') }}">
+                                        <i class="fas fa-users me-2"></i>Gerenciar Pacientes
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.dentists') }}">
+                                        <i class="fas fa-user-md me-2"></i>Gerenciar Dentistas
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.procedures') }}">
+                                        <i class="fas fa-procedures me-2"></i>Gerenciar Procedimentos
+                                    </a></li>
+                                    <li><a class="dropdown-item" href="{{ route('admin.reports') }}">
+                                        <i class="fas fa-chart-bar me-2"></i>Relatórios
+                                    </a></li>
+                                    @endif
                                     <li><hr class="dropdown-divider"></li>
                                     <li>
                                         <a class="dropdown-item" href="#" onclick="logout()">
-                                            <i class="fas fa-sign-out-alt me-1"></i>
-                                            Sair
+                                            <i class="fas fa-sign-out-alt me-2"></i>Sair
                                         </a>
                                     </li>
                                 </ul>
@@ -162,12 +183,12 @@
                 <div class="modal-body">
                     <form id="loginForm">
                         <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" required>
+                            <label for="loginEmail" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="loginEmail" required>
                         </div>
                         <div class="mb-3">
-                            <label for="password" class="form-label">Senha</label>
-                            <input type="password" class="form-control" id="password" required>
+                            <label for="loginPassword" class="form-label">Senha</label>
+                            <input type="password" class="form-control" id="loginPassword" required>
                         </div>
                         <div class="mb-3 form-check">
                             <input type="checkbox" class="form-check-input" id="remember">
@@ -211,10 +232,171 @@
     </div>
 
     <!-- Scripts -->
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/dataTables.bootstrap5.min.js"></script>
     <script src="{{ asset('js/app.js') }}"></script>
     
+    <script>
+    // Verificar se jQuery está carregado
+    if (typeof jQuery === 'undefined') {
+        console.error('jQuery não foi carregado corretamente!');
+    } else {
+        console.log('jQuery carregado com sucesso!');
+    }
+    </script>
+    
     @yield('scripts')
+    
+    <script>
+    
+    // Função de logout
+    function logout() {
+        if (confirm('Tem certeza que deseja sair?')) {
+            try {
+                // Criar formulário para fazer POST para logout
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '{{ route("logout") }}';
+                form.style.display = 'none';
+                
+                // Adicionar CSRF token
+                const csrfToken = document.createElement('input');
+                csrfToken.type = 'hidden';
+                csrfToken.name = '_token';
+                csrfToken.value = '{{ csrf_token() }}';
+                form.appendChild(csrfToken);
+                
+                // Adicionar ao body e submeter
+                document.body.appendChild(form);
+                form.submit();
+            } catch (error) {
+                console.error('Erro no logout:', error);
+                // Fallback: redirecionar diretamente
+                window.location.href = '{{ route("logout.get") }}';
+            }
+        }
+    }
+    
+    // Função para mostrar modal de login
+    function showLoginModal() {
+        const loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+        loginModal.show();
+        
+        // Aguardar um pouco para garantir que o modal esteja completamente carregado
+        setTimeout(function() {
+            const emailElement = document.getElementById('loginEmail');
+            const passwordElement = document.getElementById('loginPassword');
+            
+            if (emailElement && passwordElement) {
+                // Focar no campo de email
+                emailElement.focus();
+                
+                // Adicionar evento de teclado para login com Enter
+                passwordElement.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        e.preventDefault();
+                        login();
+                    }
+                });
+            } else {
+                console.error('Erro: Campos de login não encontrados no modal');
+            }
+        }, 300);
+    }
+    
+    // Função para fazer login
+    function login() {
+        // Verificar se os elementos existem
+        const emailElement = document.getElementById('loginEmail');
+        const passwordElement = document.getElementById('loginPassword');
+        
+        if (!emailElement || !passwordElement) {
+            console.error('Elementos de login não encontrados');
+            alert('Erro: Campos de login não encontrados. Recarregue a página.');
+            return;
+        }
+        
+        const email = emailElement.value.trim();
+        const password = passwordElement.value.trim();
+        
+        if (!email || !password) {
+            alert('Por favor, preencha todos os campos.');
+            return;
+        }
+        
+        // Desabilitar botão para evitar múltiplos cliques
+        const loginButton = document.querySelector('button[onclick="login()"]');
+        if (loginButton) {
+            loginButton.disabled = true;
+            loginButton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Entrando...';
+        }
+        
+        // Criar formulário para fazer POST para login
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '{{ route("login.post") }}';
+        form.style.display = 'none';
+        
+        // Adicionar CSRF token
+        const csrfToken = document.createElement('input');
+        csrfToken.type = 'hidden';
+        csrfToken.name = '_token';
+        csrfToken.value = '{{ csrf_token() }}';
+        form.appendChild(csrfToken);
+        
+        // Adicionar campos de email e senha
+        const emailInput = document.createElement('input');
+        emailInput.type = 'hidden';
+        emailInput.name = 'email';
+        emailInput.value = email;
+        form.appendChild(emailInput);
+        
+        const passwordInput = document.createElement('input');
+        passwordInput.type = 'hidden';
+        passwordInput.name = 'password';
+        passwordInput.value = password;
+        form.appendChild(passwordInput);
+        
+        // Adicionar ao body e submeter
+        document.body.appendChild(form);
+        form.submit();
+    }
+    
+    // Função para login com Google
+    function loginWithGoogle() {
+        window.location.href = '{{ route("auth.google") }}';
+    }
+    
+    // Mostrar mensagens de sucesso/erro
+    @if(session('success'))
+        showToast('{{ session('success') }}', 'success');
+    @endif
+    
+    @if(session('error'))
+        showToast('{{ session('error') }}', 'error');
+    @endif
+    
+    function showToast(message, type = 'info') {
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+        const toastHeader = toast.querySelector('.toast-header i');
+        
+        toastMessage.textContent = message;
+        
+        // Alterar ícone e cor baseado no tipo
+        if (type === 'success') {
+            toastHeader.className = 'fas fa-check-circle text-success me-2';
+        } else if (type === 'error') {
+            toastHeader.className = 'fas fa-exclamation-circle text-danger me-2';
+        } else {
+            toastHeader.className = 'fas fa-info-circle text-primary me-2';
+        }
+        
+        const bsToast = new bootstrap.Toast(toast);
+        bsToast.show();
+    }
+    </script>
 </body>
 </html>

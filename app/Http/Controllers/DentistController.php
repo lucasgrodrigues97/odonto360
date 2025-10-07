@@ -372,4 +372,172 @@ class DentistController extends Controller
             'data' => $stats
         ]);
     }
+
+    /**
+     * Get today's appointments for dentist dashboard
+     */
+    public function getTodayAppointments(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user->isDentist()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não é um dentista'
+            ], 403);
+        }
+
+        $dentistId = $user->dentist->id;
+        $today = now()->toDateString();
+
+        $appointments = \App\Models\Appointment::with(['patient.user', 'procedures'])
+            ->where('dentist_id', $dentistId)
+            ->where('appointment_date', $today)
+            ->orderBy('appointment_time')
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'data' => $appointments->map(function ($appointment) {
+                return [
+                    'id' => $appointment->id,
+                    'patient_name' => $appointment->patient->user->name ?? 'N/A',
+                    'time' => $appointment->appointment_time ? 
+                        (is_string($appointment->appointment_time) ? 
+                            substr($appointment->appointment_time, 0, 5) : 
+                            $appointment->appointment_time->format('H:i')) : 
+                        '-',
+                    'status' => $appointment->status,
+                    'procedures' => $appointment->procedures->pluck('name')->toArray(),
+                    'reason' => $appointment->reason,
+                ];
+            })
+        ]);
+    }
+
+    /**
+     * Get recent patients for dentist dashboard
+     */
+    public function getRecentPatients(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user->isDentist()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não é um dentista'
+            ], 403);
+        }
+
+        $dentistId = $user->dentist->id;
+
+        $patients = \App\Models\Patient::whereHas('appointments', function ($query) use ($dentistId) {
+            $query->where('dentist_id', $dentistId);
+        })
+        ->with(['user', 'appointments' => function ($query) use ($dentistId) {
+            $query->where('dentist_id', $dentistId)
+                  ->orderBy('appointment_date', 'desc');
+        }])
+        ->get()
+        ->map(function ($patient) {
+            $lastAppointment = $patient->appointments->first();
+            return [
+                'id' => $patient->id,
+                'name' => $patient->user->name,
+                'last_appointment' => $lastAppointment ? 
+                    $lastAppointment->appointment_date : null,
+                'appointments_count' => $patient->appointments->count()
+            ];
+        })
+        ->sortByDesc('last_appointment')
+        ->take(5)
+        ->values();
+
+        return response()->json([
+            'success' => true,
+            'data' => $patients
+        ]);
+    }
+
+    /**
+     * Get appointments status chart data for dentist dashboard
+     */
+    public function getAppointmentsStatusChart(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user->isDentist()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não é um dentista'
+            ], 403);
+        }
+
+        $dentistId = $user->dentist->id;
+
+        $statusCounts = \App\Models\Appointment::where('dentist_id', $dentistId)
+            ->selectRaw('status, COUNT(*) as count')
+            ->groupBy('status')
+            ->pluck('count', 'status')
+            ->toArray();
+
+        $labels = ['Concluído', 'Agendado', 'Cancelado', 'Confirmado'];
+        $data = [
+            $statusCounts['completed'] ?? 0,
+            $statusCounts['scheduled'] ?? 0,
+            $statusCounts['cancelled'] ?? 0,
+            $statusCounts['confirmed'] ?? 0,
+        ];
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'labels' => $labels,
+                'data' => $data
+            ]
+        ]);
+    }
+
+    /**
+     * Get monthly revenue chart data for dentist dashboard
+     */
+    public function getMonthlyRevenueChart(Request $request)
+    {
+        $user = $request->user();
+        
+        if (!$user->isDentist()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não é um dentista'
+            ], 403);
+        }
+
+        $dentistId = $user->dentist->id;
+
+        // Get last 6 months revenue
+        $revenueData = [];
+        $labels = [];
+        
+        for ($i = 5; $i >= 0; $i--) {
+            $date = now()->subMonths($i);
+            $monthStart = $date->copy()->startOfMonth();
+            $monthEnd = $date->copy()->endOfMonth();
+            
+            $revenue = \App\Models\Appointment::where('dentist_id', $dentistId)
+                ->where('status', 'completed')
+                ->whereBetween('appointment_date', [$monthStart, $monthEnd])
+                ->sum('cost');
+            
+            $revenueData[] = $revenue;
+            $labels[] = $date->format('M/Y');
+        }
+
+        return response()->json([
+            'success' => true,
+            'data' => [
+                'labels' => $labels,
+                'data' => $revenueData
+            ]
+        ]);
+    }
 }

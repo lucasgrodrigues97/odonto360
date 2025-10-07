@@ -14,9 +14,6 @@ import 'chart.js';
 // Importar CSS
 import '../css/app.css';
 
-// Código JavaScript principal
-console.log('Odonto360 - Sistema de Agendamento Odontológico');
-
 // Inicializar componentes quando o DOM estiver pronto
 document.addEventListener('DOMContentLoaded', function() {
     // Inicializar DataTables

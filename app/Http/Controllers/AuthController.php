@@ -200,16 +200,43 @@ class AuthController extends Controller
     }
 
     /**
-     * Logout user
+     * Logout user (API)
      */
     public function logout(Request $request)
     {
-        $request->user()->currentAccessToken()->delete();
+        // Verificar se o token tem método delete (não é TransientToken)
+        if ($request->user() && $request->user()->currentAccessToken()) {
+            $token = $request->user()->currentAccessToken();
+            
+            if (method_exists($token, 'delete')) {
+                $token->delete();
+            }
+        }
 
         return response()->json([
             'success' => true,
             'message' => 'Logout realizado com sucesso'
         ]);
+    }
+
+    /**
+     * Logout user (Web)
+     */
+    public function logoutWeb(Request $request)
+    {
+        try {
+            // Fazer logout da sessão web
+            auth()->logout();
+            
+            // Invalidar sessão
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+
+            return redirect('/')->with('success', 'Logout realizado com sucesso!');
+        } catch (\Exception $e) {
+            // Se houver erro, apenas redirecionar
+            return redirect('/')->with('success', 'Logout realizado com sucesso!');
+        }
     }
 
     /**

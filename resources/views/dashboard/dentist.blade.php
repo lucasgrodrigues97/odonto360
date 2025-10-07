@@ -66,17 +66,17 @@
     </div>
 </div>
 
+<!-- Main Content -->
 <div class="row g-4">
     <!-- Today's Schedule -->
-    <div class="col-lg-8">
-        <div class="card">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">
-                    <i class="fas fa-calendar-day me-2"></i>
-                    Agenda de Hoje
-                </h5>
-                <div class="btn-group" role="group">
-                    <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadTodaySchedule()">
+    <div class="col-xl-6">
+        <div class="card shadow">
+            <div class="card-header py-3 d-flex justify-content-between align-items-center">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-calendar-day me-2"></i>Agenda de Hoje
+                </h6>
+                <div>
+                    <button class="btn btn-sm btn-outline-primary me-2" onclick="loadTodaySchedule()">
                         <i class="fas fa-sync-alt me-1"></i>
                         Atualizar
                     </button>
@@ -97,49 +97,82 @@
         </div>
     </div>
     
-    <!-- Quick Actions & Stats -->
-    <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-bolt me-2"></i>
-                    Ações Rápidas
-                </h5>
+    <!-- Quick Actions -->
+    <div class="col-xl-6">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-bolt me-2"></i>Ações Rápidas
+                </h6>
             </div>
             <div class="card-body">
                 <div class="d-grid gap-2">
                     <a href="{{ route('dentist.appointments') }}" class="btn btn-primary">
-                        <i class="fas fa-calendar-alt me-2"></i>
-                        Ver Agendamentos
+                        <i class="fas fa-calendar-alt me-2"></i>Ver Agendamentos
                     </a>
                     <a href="{{ route('dentist.patients') }}" class="btn btn-outline-primary">
-                        <i class="fas fa-users me-2"></i>
-                        Meus Pacientes
+                        <i class="fas fa-users me-2"></i>Meus Pacientes
                     </a>
-                    <a href="{{ route('dentist.schedule') }}" class="btn btn-outline-secondary">
-                        <i class="fas fa-clock me-2"></i>
-                        Configurar Agenda
+                    <a href="{{ route('dentist.schedule') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-clock me-2"></i>Configurar Agenda
                     </a>
-                    <a href="{{ route('dentist.statistics') }}" class="btn btn-outline-info">
-                        <i class="fas fa-chart-bar me-2"></i>
-                        Ver Estatísticas
+                    <a href="{{ route('dentist.statistics') }}" class="btn btn-outline-primary">
+                        <i class="fas fa-chart-bar me-2"></i>Ver Estatísticas
                     </a>
                 </div>
             </div>
         </div>
-        
-        <!-- Recent Patients -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-users me-2"></i>
-                    Pacientes Recentes
-                </h5>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="row g-4 mt-4">
+    <!-- Appointments by Status -->
+    <div class="col-xl-6">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-pie me-2"></i>Consultas por Status
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-pie pt-4 pb-2">
+                    <canvas id="appointmentsStatusChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Monthly Revenue -->
+    <div class="col-xl-6">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-chart-line me-2"></i>Receita Mensal
+                </h6>
+            </div>
+            <div class="card-body">
+                <div class="chart-area">
+                    <canvas id="monthlyRevenueChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Patients -->
+<div class="row g-4 mt-4">
+    <div class="col-12">
+        <div class="card shadow">
+            <div class="card-header py-3">
+                <h6 class="m-0 font-weight-bold text-primary">
+                    <i class="fas fa-user-friends me-2"></i>Pacientes Recentes
+                </h6>
             </div>
             <div class="card-body">
                 <div id="recentPatients">
-                    <div class="text-center py-3">
-                        <div class="spinner-border spinner-border-sm text-primary" role="status">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status">
                             <span class="visually-hidden">Carregando...</span>
                         </div>
                     </div>
@@ -149,303 +182,260 @@
     </div>
 </div>
 
-<!-- Charts Row -->
-<div class="row g-4 mt-4">
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-pie me-2"></i>
-                    Consultas por Status
-                </h5>
-            </div>
-            <div class="card-body">
-                <canvas id="appointmentsStatusChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-lg-6">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-chart-line me-2"></i>
-                    Receita Mensal
-                </h5>
-            </div>
-            <div class="card-body">
-                <canvas id="monthlyRevenueChart" height="300"></canvas>
-            </div>
-        </div>
-    </div>
-</div>
+@endsection
 
+@section('scripts')
 <script>
-let appointmentsStatusChart = null;
-let monthlyRevenueChart = null;
-
-function loadDashboardData() {
-    loadDentistStatistics();
+$(document).ready(function() {
+    console.log('Dashboard dentista carregando...');
+    
+    // Carregar dados específicos do dentista
     loadTodaySchedule();
     loadRecentPatients();
     loadCharts();
-}
-
-function loadDentistStatistics() {
-    fetch('/api/dentists/profile/statistics', {
-        headers: {
-            'Authorization': 'Bearer ' + getToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            // Load today's appointments count
-            loadTodayAppointmentsCount();
-            
-            document.getElementById('uniquePatients').textContent = data.data.unique_patients || 0;
-            document.getElementById('totalRevenue').textContent = 'R$ ' + (data.data.total_revenue || 0).toFixed(2);
-            
-            const totalAppointments = data.data.total_appointments || 0;
-            const cancelledAppointments = data.data.cancelled_appointments || 0;
-            const cancellationRate = totalAppointments > 0 ? ((cancelledAppointments / totalAppointments) * 100).toFixed(1) : 0;
-            document.getElementById('cancellationRate').textContent = cancellationRate + '%';
-        }
-    })
-    .catch(error => {
-        console.error('Error loading statistics:', error);
-    });
-}
-
-function loadTodayAppointmentsCount() {
-    const today = new Date().toISOString().split('T')[0];
-    
-    fetch(`/api/dentists/profile/appointments?start_date=${today}&end_date=${today}`, {
-        headers: {
-            'Authorization': 'Bearer ' + getToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            document.getElementById('todayAppointments').textContent = data.data.total || 0;
-        }
-    })
-    .catch(error => {
-        console.error('Error loading today appointments count:', error);
-    });
-}
+});
 
 function loadTodaySchedule() {
-    const today = new Date().toISOString().split('T')[0];
+    console.log('Carregando agenda de hoje...');
     
-    fetch(`/api/dentists/profile/appointments?start_date=${today}&end_date=${today}`, {
-        headers: {
-            'Authorization': 'Bearer ' + getToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const container = document.getElementById('todaySchedule');
-            
-            if (data.data.data && data.data.data.length > 0) {
-                let html = '';
-                data.data.data.forEach(appointment => {
-                    const appointmentTime = new Date(appointment.appointment_time);
-                    
-                    html += `
-                        <div class="d-flex justify-content-between align-items-center border-bottom py-3">
-                            <div class="d-flex align-items-center">
-                                <div class="bg-${getStatusColor(appointment.status)} bg-opacity-10 rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 40px; height: 40px;">
-                                    <i class="fas fa-clock text-${getStatusColor(appointment.status)}"></i>
-                                </div>
-                                <div>
-                                    <h6 class="mb-1">${appointment.patient.user.name}</h6>
-                                    <small class="text-muted">
-                                        ${appointmentTime.toLocaleTimeString('pt-BR', {hour: '2-digit', minute: '2-digit'})} - ${appointment.duration} min
-                                    </small>
-                                </div>
-                            </div>
-                            <div class="text-end">
-                                <span class="badge bg-${getStatusColor(appointment.status)}">${getStatusText(appointment.status)}</span>
-                                <div class="mt-1">
-                                    <small class="text-muted">R$ ${appointment.cost.toFixed(2)}</small>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
+    $.ajax({
+        url: '/api/dentist/appointments/today',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Agenda de hoje recebida:', response);
+            if (response.success) {
+                displayTodaySchedule(response.data);
             } else {
-                container.innerHTML = '<p class="text-muted text-center py-4">Nenhuma consulta agendada para hoje</p>';
+                displayTodayScheduleError();
             }
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao carregar agenda de hoje:', error);
+            displayTodayScheduleError();
         }
-    })
-    .catch(error => {
-        console.error('Error loading today schedule:', error);
     });
+}
+
+function displayTodaySchedule(appointments) {
+    const container = $('#todaySchedule');
+    
+    if (appointments.length === 0) {
+        container.html(`
+            <div class="text-center py-4">
+                <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Nenhum agendamento para hoje</p>
+            </div>
+        `);
+        return;
+    }
+    
+    let html = '<div class="list-group">';
+    appointments.forEach(appointment => {
+        const statusClass = getStatusClass(appointment.status);
+        const statusText = getStatusText(appointment.status);
+        
+        html += `
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">${appointment.patient_name}</h6>
+                    <p class="mb-1 text-muted">${appointment.time} - ${appointment.procedures ? appointment.procedures.join(', ') : 'N/A'}</p>
+                </div>
+                <span class="badge ${statusClass}">${statusText}</span>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    container.html(html);
+}
+
+function displayTodayScheduleError() {
+    const container = $('#todaySchedule');
+    container.html(`
+        <div class="text-center py-4">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <p class="text-muted">Erro ao carregar agenda</p>
+            <button class="btn btn-sm btn-outline-primary" onclick="loadTodaySchedule()">
+                <i class="fas fa-refresh me-1"></i>Tentar novamente
+            </button>
+        </div>
+    `);
 }
 
 function loadRecentPatients() {
-    fetch('/api/dentists/profile/patients?limit=5', {
-        headers: {
-            'Authorization': 'Bearer ' + getToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const container = document.getElementById('recentPatients');
-            
-            if (data.data.data && data.data.data.length > 0) {
-                let html = '';
-                data.data.data.forEach(patient => {
-                    html += `
-                        <div class="d-flex justify-content-between align-items-center border-bottom py-2">
-                            <div>
-                                <h6 class="mb-1">${patient.user.name}</h6>
-                                <small class="text-muted">${patient.patient_code}</small>
-                            </div>
-                            <a href="/dentist/patients" class="btn btn-sm btn-outline-primary">
-                                <i class="fas fa-eye"></i>
-                            </a>
-                        </div>
-                    `;
-                });
-                container.innerHTML = html;
+    console.log('Carregando pacientes recentes...');
+    
+    $.ajax({
+        url: '/api/dentist/patients/recent',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Pacientes recentes recebidos:', response);
+            if (response.success) {
+                displayRecentPatients(response.data);
             } else {
-                container.innerHTML = '<p class="text-muted text-center py-2">Nenhum paciente recente</p>';
+                displayRecentPatientsError();
             }
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao carregar pacientes recentes:', error);
+            displayRecentPatientsError();
         }
-    })
-    .catch(error => {
-        console.error('Error loading recent patients:', error);
     });
+}
+
+function displayRecentPatients(patients) {
+    const container = $('#recentPatients');
+    
+    if (patients.length === 0) {
+        container.html(`
+            <div class="text-center py-4">
+                <i class="fas fa-user-friends fa-3x text-muted mb-3"></i>
+                <p class="text-muted">Nenhum paciente recente</p>
+            </div>
+        `);
+        return;
+    }
+    
+    let html = '<div class="list-group">';
+    patients.forEach(patient => {
+        html += `
+            <div class="list-group-item d-flex justify-content-between align-items-center">
+                <div>
+                    <h6 class="mb-1">${patient.name}</h6>
+                    <p class="mb-1 text-muted">Última consulta: ${patient.last_appointment || 'Nunca'}</p>
+                </div>
+                <span class="badge bg-primary">${patient.appointments_count || 0} consultas</span>
+            </div>
+        `;
+    });
+    html += '</div>';
+    
+    container.html(html);
+}
+
+function displayRecentPatientsError() {
+    const container = $('#recentPatients');
+    container.html(`
+        <div class="text-center py-4">
+            <i class="fas fa-exclamation-triangle fa-3x text-warning mb-3"></i>
+            <p class="text-muted">Erro ao carregar pacientes</p>
+            <button class="btn btn-sm btn-outline-primary" onclick="loadRecentPatients()">
+                <i class="fas fa-refresh me-1"></i>Tentar novamente
+            </button>
+        </div>
+    `);
 }
 
 function loadCharts() {
-    loadAppointmentsStatusChart();
-    loadMonthlyRevenueChart();
-}
-
-function loadAppointmentsStatusChart() {
-    fetch('/api/dentists/profile/statistics', {
-        headers: {
-            'Authorization': 'Bearer ' + getToken(),
-            'Accept': 'application/json'
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            const ctx = document.getElementById('appointmentsStatusChart').getContext('2d');
-            
-            if (appointmentsStatusChart) {
-                appointmentsStatusChart.destroy();
+    console.log('Carregando gráficos...');
+    
+    // Carregar gráfico de status
+    $.ajax({
+        url: '/api/dentist/charts/appointments-status',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Dados do gráfico de status recebidos:', response);
+            if (response.success) {
+                createAppointmentsStatusChart(response.data);
             }
-            
-            appointmentsStatusChart = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['Concluídas', 'Agendadas', 'Canceladas'],
-                    datasets: [{
-                        data: [
-                            data.data.completed_appointments || 0,
-                            data.data.upcoming_appointments || 0,
-                            data.data.cancelled_appointments || 0
-                        ],
-                        backgroundColor: [
-                            '#28a745',
-                            '#007bff',
-                            '#dc3545'
-                        ]
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom'
-                        }
-                    }
-                }
-            });
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao carregar gráfico de status:', error);
         }
-    })
-    .catch(error => {
-        console.error('Error loading appointments status chart:', error);
+    });
+    
+    // Carregar gráfico de receita mensal
+    $.ajax({
+        url: '/api/dentist/charts/monthly-revenue',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            console.log('Dados do gráfico de receita recebidos:', response);
+            if (response.success) {
+                createMonthlyRevenueChart(response.data);
+            }
+        },
+        error: function(xhr, status, error) {
+            console.error('Erro ao carregar gráfico de receita:', error);
+        }
     });
 }
 
-function loadMonthlyRevenueChart() {
-    // This would typically come from an API endpoint
-    // For now, we'll create sample data
-    const ctx = document.getElementById('monthlyRevenueChart').getContext('2d');
-    
-    if (monthlyRevenueChart) {
-        monthlyRevenueChart.destroy();
+function createAppointmentsStatusChart(data) {
+    const ctx = document.getElementById('appointmentsStatusChart');
+    if (!ctx) {
+        console.log('Elemento appointmentsStatusChart não encontrado');
+        return;
     }
     
-    monthlyRevenueChart = new Chart(ctx, {
-        type: 'line',
+    console.log('Criando gráfico de status com dados:', data);
+    
+    new Chart(ctx, {
+        type: 'doughnut',
         data: {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+            labels: data.labels || ['Concluído', 'Agendado', 'Cancelado'],
             datasets: [{
-                label: 'Receita (R$)',
-                data: [12000, 15000, 18000, 14000, 16000, 20000],
-                borderColor: '#007bff',
-                backgroundColor: 'rgba(0, 123, 255, 0.1)',
-                tension: 0.4
+                data: data.data || [0, 0, 0],
+                backgroundColor: ['#28a745', '#007bff', '#dc3545']
             }]
         },
         options: {
             responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    beginAtZero: true,
-                    ticks: {
-                        callback: function(value) {
-                            return 'R$ ' + value.toLocaleString('pt-BR');
-                        }
-                    }
-                }
-            }
+            maintainAspectRatio: false
         }
     });
 }
 
-function getStatusColor(status) {
-    const colors = {
-        'scheduled': 'warning',
-        'confirmed': 'info',
-        'in_progress': 'primary',
-        'completed': 'success',
-        'cancelled': 'danger',
-        'no_show': 'secondary'
+function createMonthlyRevenueChart(data) {
+    const ctx = document.getElementById('monthlyRevenueChart');
+    if (!ctx) {
+        console.log('Elemento monthlyRevenueChart não encontrado');
+        return;
+    }
+    
+    console.log('Criando gráfico de receita com dados:', data);
+    
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: data.labels || [],
+            datasets: [{
+                label: 'Receita',
+                data: data.data || [],
+                borderColor: '#007bff',
+                backgroundColor: 'rgba(0, 123, 255, 0.1)',
+                tension: 0.1
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+}
+
+function getStatusClass(status) {
+    const classes = {
+        'scheduled': 'bg-primary',
+        'confirmed': 'bg-success',
+        'completed': 'bg-info',
+        'cancelled': 'bg-danger',
+        'no_show': 'bg-warning'
     };
-    return colors[status] || 'secondary';
+    return classes[status] || 'bg-secondary';
 }
 
 function getStatusText(status) {
     const texts = {
         'scheduled': 'Agendado',
         'confirmed': 'Confirmado',
-        'in_progress': 'Em Andamento',
         'completed': 'Concluído',
         'cancelled': 'Cancelado',
-        'no_show': 'Não Compareceu'
+        'no_show': 'Não compareceu'
     };
     return texts[status] || status;
-}
-
-function getToken() {
-    return localStorage.getItem('token') || '';
 }
 </script>
