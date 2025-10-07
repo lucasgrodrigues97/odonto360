@@ -17,6 +17,58 @@
     <!-- Custom CSS -->
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     
+    <!-- Dropdown Fix CSS -->
+    <style>
+    .navbar .dropdown-menu {
+        display: none !important;
+        position: absolute !important;
+        top: 100% !important;
+        left: 0 !important;
+        z-index: 1000 !important;
+        min-width: 200px !important;
+        background: white !important;
+        border: 1px solid #dee2e6 !important;
+        border-radius: 0.375rem !important;
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15) !important;
+        padding: 0.5rem 0 !important;
+        margin: 0 !important;
+    }
+    
+    .navbar .dropdown-menu.show {
+        display: block !important;
+    }
+    
+    .navbar .dropdown {
+        position: relative !important;
+    }
+    
+    .navbar .dropdown-item {
+        display: block !important;
+        width: 100% !important;
+        padding: 0.25rem 1rem !important;
+        clear: both !important;
+        font-weight: 400 !important;
+        color: #212529 !important;
+        text-align: inherit !important;
+        text-decoration: none !important;
+        white-space: nowrap !important;
+        background-color: transparent !important;
+        border: 0 !important;
+    }
+    
+    .navbar .dropdown-item:hover {
+        color: #1e2125 !important;
+        background-color: #e9ecef !important;
+    }
+    
+    .navbar .dropdown-divider {
+        height: 0 !important;
+        margin: 0.5rem 0 !important;
+        overflow: hidden !important;
+        border-top: 1px solid #dee2e6 !important;
+    }
+    </style>
+    
     @yield('styles')
 </head>
 <body>
@@ -109,7 +161,7 @@
                     <ul class="navbar-nav">
                         @auth
                             <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" id="userDropdown">
                                     <i class="fas fa-user me-1"></i>
                                     {{ auth()->user()->name }}
                                 </a>
@@ -245,6 +297,71 @@
     } else {
         console.log('jQuery carregado com sucesso!');
     }
+    
+    // Inicializar dropdowns do Bootstrap
+    $(document).ready(function() {
+        console.log('Inicializando dropdowns...');
+        console.log('Bootstrap disponível:', typeof bootstrap !== 'undefined');
+        
+        // Verificar se Bootstrap está carregado
+        if (typeof bootstrap === 'undefined') {
+            console.error('Bootstrap não está carregado!');
+            return;
+        }
+        
+        // Inicializar todos os dropdowns
+        var dropdownElementList = [].slice.call(document.querySelectorAll('.dropdown-toggle'));
+        console.log('Elementos dropdown encontrados:', dropdownElementList.length);
+        
+        var dropdownList = dropdownElementList.map(function (dropdownToggleEl) {
+            console.log('Inicializando dropdown:', dropdownToggleEl.id || dropdownToggleEl.textContent);
+            return new bootstrap.Dropdown(dropdownToggleEl);
+        });
+        
+        console.log('Dropdowns inicializados:', dropdownList.length);
+        
+        // Toggle manual do dropdown do usuário
+        $('#userDropdown').on('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('Clique no dropdown do usuário detectado');
+            
+            var dropdownMenu = $(this).next('.dropdown-menu');
+            if (dropdownMenu.length) {
+                console.log('Dropdown menu encontrado:', dropdownMenu);
+                console.log('Estado atual (show):', dropdownMenu.hasClass('show'));
+                
+                // Toggle simples
+                if (dropdownMenu.hasClass('show')) {
+                    dropdownMenu.removeClass('show');
+                    console.log('Fechando dropdown');
+                } else {
+                    // Fechar outros dropdowns primeiro
+                    $('.dropdown-menu').removeClass('show');
+                    dropdownMenu.addClass('show');
+                    console.log('Abrindo dropdown');
+                }
+            } else {
+                console.error('Dropdown menu não encontrado!');
+            }
+        });
+        
+        // Fechar dropdown ao clicar fora
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.dropdown').length) {
+                $('.dropdown-menu').removeClass('show');
+            }
+        });
+        
+        // Debug: verificar se o dropdown está funcionando
+        setTimeout(function() {
+            var userDropdown = document.getElementById('userDropdown');
+            if (userDropdown) {
+                console.log('Dropdown do usuário encontrado:', userDropdown);
+                console.log('Atributos data-bs-toggle:', userDropdown.getAttribute('data-bs-toggle'));
+            }
+        }, 1000);
+    });
     </script>
     
     @yield('scripts')

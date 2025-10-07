@@ -197,11 +197,12 @@ Route::middleware(['auth'])->group(function () {
         return view('admin.reports');
     })->name('admin.reports');
     
-    // API routes for admin data
-    Route::get('/admin/patients/data', [App\Http\Controllers\AdminController::class, 'getPatientsData'])->name('admin.patients.data');
-    Route::get('/admin/dentists/data', [App\Http\Controllers\AdminController::class, 'getDentistsData'])->name('admin.dentists.data');
-    Route::get('/admin/procedures/data', [App\Http\Controllers\AdminController::class, 'getProceduresData'])->name('admin.procedures.data');
-    Route::get('/admin/reports/data', [App\Http\Controllers\AdminController::class, 'getReportsData'])->name('admin.reports.data');
+        // API routes for admin data
+        Route::get('/admin/patients/data', [App\Http\Controllers\AdminController::class, 'getPatientsData'])->name('admin.patients.data');
+        Route::get('/admin/dentists/data', [App\Http\Controllers\AdminController::class, 'getDentistsData'])->name('admin.dentists.data');
+        Route::get('/admin/procedures/data', [App\Http\Controllers\AdminController::class, 'getProceduresData'])->name('admin.procedures.data');
+        Route::get('/admin/reports/data', [App\Http\Controllers\AdminController::class, 'getReportsData'])->name('admin.reports.data');
+        Route::get('/admin/appointments/data', [App\Http\Controllers\AdminController::class, 'getAppointmentsData'])->name('admin.appointments.data');
 });
 
 // Patient specific routes

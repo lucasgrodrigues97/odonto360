@@ -143,9 +143,9 @@ class AuthController extends Controller
         if ($user->hasRole('admin')) {
             return redirect()->intended('/admin/dashboard');
         } elseif ($user->hasRole('dentist')) {
-            return redirect()->intended('/dentist/appointments');
+            return redirect()->intended('/dashboard');
         } elseif ($user->hasRole('patient')) {
-            return redirect()->intended('/patient/appointments');
+            return redirect()->intended('/dashboard');
         }
 
         return redirect()->intended('/dashboard');

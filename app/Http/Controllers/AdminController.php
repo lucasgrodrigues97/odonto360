@@ -313,4 +313,106 @@ class AdminController extends Controller
             'data' => $revenue
         ];
     }
+
+    /**
+     * Get appointments data for admin dashboard
+     */
+    public function getAppointmentsData(Request $request)
+    {
+        $query = \App\Models\Appointment::with(['patient.user', 'dentist.user', 'procedures']);
+
+        // Aplicar filtros
+        if ($request->has('status') && $request->status) {
+            $query->where('status', $request->status);
+        }
+
+        if ($request->has('dentist') && $request->dentist) {
+            $query->where('dentist_id', $request->dentist);
+        }
+
+        if ($request->has('date_from') && $request->date_from) {
+            $query->where('appointment_date', '>=', $request->date_from);
+        }
+
+        if ($request->has('date_to') && $request->date_to) {
+            $query->where('appointment_date', '<=', $request->date_to);
+        }
+
+        $appointments = $query->orderBy('appointment_date', 'desc')
+                             ->orderBy('appointment_time', 'desc')
+                             ->get();
+
+        $data = $appointments->map(function ($appointment) {
+            return [
+                'id' => $appointment->id,
+                'patient_name' => $appointment->patient->user->name ?? 'N/A',
+                'dentist_name' => $appointment->dentist->user->name ?? 'N/A',
+                'appointment_date' => $appointment->appointment_date ? 
+                    \Carbon\Carbon::parse($appointment->appointment_date)->format('d/m/Y') : '-',
+                'appointment_time' => $appointment->appointment_time ? 
+                    (is_string($appointment->appointment_time) ? 
+                        substr($appointment->appointment_time, 0, 5) : 
+                        $appointment->appointment_time->format('H:i')) : 
+                    '-',
+                'status' => $this->getStatusBadge($appointment->status),
+                'procedures' => $appointment->procedures->pluck('name')->join(', '),
+                'actions' => $this->getAppointmentActions($appointment)
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'data' => $data
+        ]);
+    }
+
+    /**
+     * Get status badge HTML
+     */
+    private function getStatusBadge($status)
+    {
+        $badges = [
+            'scheduled' => '<span class="badge bg-primary">Agendado</span>',
+            'confirmed' => '<span class="badge bg-success">Confirmado</span>',
+            'completed' => '<span class="badge bg-info">Concluído</span>',
+            'cancelled' => '<span class="badge bg-danger">Cancelado</span>',
+            'no_show' => '<span class="badge bg-warning">Não Compareceu</span>'
+        ];
+
+        return $badges[$status] ?? '<span class="badge bg-secondary">' . ucfirst($status) . '</span>';
+    }
+
+    /**
+     * Get appointment actions HTML
+     */
+    private function getAppointmentActions($appointment)
+    {
+        $actions = '';
+        
+        if ($appointment->status === 'scheduled') {
+            $actions .= '<button class="btn btn-sm btn-success me-1" onclick="updateAppointmentStatus(' . $appointment->id . ', \'confirmed\')" title="Confirmar">
+                            <i class="fas fa-check"></i>
+                         </button>';
+        }
+        
+        if (in_array($appointment->status, ['scheduled', 'confirmed'])) {
+            $actions .= '<button class="btn btn-sm btn-info me-1" onclick="updateAppointmentStatus(' . $appointment->id . ', \'completed\')" title="Marcar como Concluído">
+                            <i class="fas fa-check-circle"></i>
+                         </button>';
+        }
+        
+        if (in_array($appointment->status, ['scheduled', 'confirmed'])) {
+            $actions .= '<button class="btn btn-sm btn-warning me-1" onclick="updateAppointmentStatus(' . $appointment->id . ', \'no_show\')" title="Não Compareceu">
+                            <i class="fas fa-times"></i>
+                         </button>';
+        }
+        
+        if (in_array($appointment->status, ['scheduled', 'confirmed'])) {
+            $actions .= '<button class="btn btn-sm btn-danger" onclick="cancelAppointment(' . $appointment->id . ')" title="Cancelar">
+                            <i class="fas fa-ban"></i>
+                         </button>';
+        }
+        
+        return $actions;
+    }
 }

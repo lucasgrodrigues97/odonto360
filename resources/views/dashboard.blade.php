@@ -11,7 +11,7 @@
 @endphp
 
 @if($isAdmin)
-    @include('admin.dashboard')
+    @include('dashboard.admin')
 @elseif($isDentist)
     @include('dashboard.dentist')
 @elseif($isPatient)
@@ -28,8 +28,8 @@ $(document).ready(function() {
     
     // Load dashboard data based on user type
     @if($isAdmin)
-        console.log('Carregando dashboard admin');
-        loadAdminDashboardData();
+        console.log('Carregando dashboard admin (tela antiga)');
+        loadAdminAppointmentsData();
     @elseif($isDentist)
         console.log('Carregando dashboard dentista');
         loadDentistDashboardData();
@@ -42,91 +42,195 @@ $(document).ready(function() {
     @endif
 });
 
-// Admin dashboard functions
-function loadAdminDashboardData() {
-    console.log('Carregando dados do dashboard admin...');
+// Admin dashboard functions (tela antiga de agendamentos)
+function loadAdminAppointmentsData() {
+    console.log('Carregando dados de agendamentos do admin...');
     
-    // Carregar estatísticas do dashboard
+    // Inicializar DataTable para agendamentos
+    initAppointmentsTable();
+    
+    // Carregar dados para os filtros
+    loadFilterData();
+}
+
+function initAppointmentsTable() {
+    console.log('Inicializando DataTable...');
+    console.log('Elemento appointmentsTable encontrado:', $('#appointmentsTable').length);
+    
+    if ($.fn.DataTable) {
+        console.log('DataTable disponível, criando tabela...');
+        $('#appointmentsTable').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+            },
+            ajax: {
+                url: '/admin/appointments/data',
+                type: 'GET',
+                error: function(xhr, error, thrown) {
+                    console.error('Erro ao carregar dados da tabela:', error, xhr.responseText);
+                }
+            },
+            columns: [
+                { data: 'id', name: 'id' },
+                { data: 'patient_name', name: 'patient_name' },
+                { data: 'dentist_name', name: 'dentist_name' },
+                { data: 'appointment_date', name: 'appointment_date' },
+                { data: 'appointment_time', name: 'appointment_time' },
+                { data: 'status', name: 'status' },
+                { data: 'procedures', name: 'procedures' },
+                { data: 'actions', name: 'actions', orderable: false, searchable: false }
+            ]
+        });
+        console.log('DataTable criado com sucesso!');
+    } else {
+        console.error('DataTable não está disponível!');
+    }
+}
+
+function loadAppointments() {
+    if ($.fn.DataTable) {
+        $('#appointmentsTable').DataTable().ajax.reload();
+    }
+}
+
+function loadFilterData() {
+    // Carregar dentistas para o filtro
     $.ajax({
-        url: '/dashboard/stats',
+        url: '/admin/dentists/data',
         method: 'GET',
         dataType: 'json',
         success: function(response) {
-            console.log('Estatísticas admin recebidas:', response);
             if (response.success) {
-                updateAdminDashboardStats(response.data);
-            } else {
-                console.log('Erro nas estatísticas admin:', response.message);
+                const dentistSelect = $('#dentistFilter');
+                const dentistModalSelect = $('#dentistSelect');
+                
+                response.data.forEach(function(dentist) {
+                    const option = `<option value="${dentist.id}">${dentist.name}</option>`;
+                    dentistSelect.append(option);
+                    dentistModalSelect.append(option);
+                });
             }
-        },
-        error: function(xhr, status, error) {
-            console.error('Erro ao carregar estatísticas admin:', error, xhr.responseText);
         }
     });
     
-    // Carregar dados dos gráficos
+    // Carregar pacientes para o modal
     $.ajax({
-        url: '/admin/reports/data',
+        url: '/admin/patients/data',
         method: 'GET',
         dataType: 'json',
         success: function(response) {
-            console.log('Dados dos gráficos admin recebidos:', response);
             if (response.success) {
-                updateAdminCharts(response.charts);
-            } else {
-                console.log('Erro nos dados dos gráficos admin:', response.message);
+                const patientSelect = $('#patientSelect');
+                
+                response.data.forEach(function(patient) {
+                    const option = `<option value="${patient.id}">${patient.name}</option>`;
+                    patientSelect.append(option);
+                });
             }
-        },
-        error: function(xhr, status, error) {
-            console.error('Erro ao carregar dados dos gráficos admin:', error, xhr.responseText);
         }
     });
 }
 
-// Admin dashboard stats update
-function updateAdminDashboardStats(data) {
-    console.log('Atualizando stats do admin com dados:', data);
+function filterAppointments() {
+    const status = $('#statusFilter').val();
+    const dentist = $('#dentistFilter').val();
+    const dateFrom = $('#dateFromFilter').val();
+    const dateTo = $('#dateToFilter').val();
     
-    // Atualizar estatísticas do admin
-    if (data.total_patients !== undefined) {
-        const element = $('#totalPatients');
-        console.log('Elemento totalPatients encontrado:', element.length);
-        element.text(data.total_patients);
-    }
-    if (data.total_dentists !== undefined) {
-        const element = $('#totalDentists');
-        console.log('Elemento totalDentists encontrado:', element.length);
-        element.text(data.total_dentists);
-    }
-    if (data.today_appointments !== undefined) {
-        const element = $('#todayAppointments');
-        console.log('Elemento todayAppointments encontrado:', element.length);
-        element.text(data.today_appointments);
-    }
-    if (data.total_revenue !== undefined) {
-        const element = $('#totalRevenue');
-        console.log('Elemento totalRevenue encontrado:', element.length);
-        element.text('R$ ' + data.total_revenue.toLocaleString('pt-BR', {minimumFractionDigits: 2}));
+    if ($.fn.DataTable) {
+        const table = $('#appointmentsTable').DataTable();
+        
+        // Aplicar filtros
+        table.ajax.url(`/admin/appointments/data?status=${status}&dentist=${dentist}&date_from=${dateFrom}&date_to=${dateTo}`).load();
     }
 }
 
-// Admin charts update
-function updateAdminCharts(chartsData) {
-    console.log('Atualizando gráficos do admin com dados:', chartsData);
+function createAppointment() {
+    const formData = {
+        patient_id: $('#patientSelect').val(),
+        dentist_id: $('#dentistSelect').val(),
+        appointment_date: $('#appointmentDate').val(),
+        appointment_time: $('#appointmentTime').val(),
+        reason: $('#appointmentReason').val(),
+        status: 'scheduled'
+    };
     
-    // Atualizar gráfico de status
-    if (chartsData.status) {
-        updateStatusChart(chartsData.status);
+    if (!formData.patient_id || !formData.dentist_id || !formData.appointment_date || !formData.appointment_time) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
     }
     
-    // Atualizar gráfico de dentistas
-    if (chartsData.dentists) {
-        updateDentistsChart(chartsData.dentists);
+    $.ajax({
+        url: '/api/appointments',
+        method: 'POST',
+        data: formData,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('Agendamento criado com sucesso!');
+                $('#newAppointmentModal').modal('hide');
+                $('#newAppointmentForm')[0].reset();
+                loadAppointments();
+            } else {
+                alert('Erro ao criar agendamento: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            const response = xhr.responseJSON;
+            alert('Erro ao criar agendamento: ' + (response.message || 'Erro desconhecido'));
+        }
+    });
+}
+
+function updateAppointmentStatus(appointmentId, newStatus) {
+    if (confirm('Tem certeza que deseja alterar o status deste agendamento?')) {
+        $.ajax({
+            url: `/api/appointments/${appointmentId}/status`,
+            method: 'PUT',
+            data: { status: newStatus },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Status atualizado com sucesso!');
+                    loadAppointments();
+                } else {
+                    alert('Erro ao atualizar status: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                alert('Erro ao atualizar status: ' + (response.message || 'Erro desconhecido'));
+            }
+        });
     }
-    
-    // Atualizar gráfico de receita
-    if (chartsData.revenue) {
-        updateRevenueChart(chartsData.revenue);
+}
+
+function cancelAppointment(appointmentId) {
+    if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+        $.ajax({
+            url: `/api/appointments/${appointmentId}/cancel`,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Agendamento cancelado com sucesso!');
+                    loadAppointments();
+                } else {
+                    alert('Erro ao cancelar agendamento: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                alert('Erro ao cancelar agendamento: ' + (response.message || 'Erro desconhecido'));
+            }
+        });
     }
 }
 
@@ -360,84 +464,6 @@ function getStatusText(status) {
     return texts[status] || status;
 }
 
-// Funções dos gráficos do admin
-function updateStatusChart(data) {
-    const ctx = document.getElementById('statusChart');
-    if (!ctx) {
-        console.log('Elemento statusChart não encontrado');
-        return;
-    }
-    
-    console.log('Criando gráfico de status com dados:', data);
-    
-    new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: data.labels || ['Agendado', 'Confirmado', 'Concluído', 'Cancelado'],
-            datasets: [{
-                data: data.data || [0, 0, 0, 0],
-                backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
-
-function updateDentistsChart(data) {
-    const ctx = document.getElementById('dentistsChart');
-    if (!ctx) {
-        console.log('Elemento dentistsChart não encontrado');
-        return;
-    }
-    
-    console.log('Criando gráfico de dentistas com dados:', data);
-    
-    new Chart(ctx, {
-        type: 'bar',
-        data: {
-            labels: data.labels || [],
-            datasets: [{
-                label: 'Agendamentos',
-                data: data.data || [],
-                backgroundColor: '#36A2EB'
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
-
-function updateRevenueChart(data) {
-    const ctx = document.getElementById('revenueChart');
-    if (!ctx) {
-        console.log('Elemento revenueChart não encontrado');
-        return;
-    }
-    
-    console.log('Criando gráfico de receita com dados:', data);
-    
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: data.labels || [],
-            datasets: [{
-                label: 'Receita',
-                data: data.data || [],
-                borderColor: '#4BC0C0',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
-}
 
 function formatDate(dateString) {
     if (!dateString) return '-';

@@ -11,6 +11,29 @@
         </div>
     </div>
     
+    <!-- Navegação por Abas -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <ul class="nav nav-tabs" id="adminTabs" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">
+                        <i class="fas fa-chart-pie me-2"></i>Visão Geral
+                    </button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link" id="appointments-tab" data-bs-toggle="tab" data-bs-target="#appointments" type="button" role="tab" aria-controls="appointments" aria-selected="false">
+                        <i class="fas fa-calendar-alt me-2"></i>Agendamentos
+                    </button>
+                </li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Conteúdo das Abas -->
+    <div class="tab-content" id="adminTabsContent">
+        <!-- Aba Visão Geral -->
+        <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
+    
     <!-- Cards de Estatísticas -->
     <div class="row mb-4">
         <div class="col-xl-3 col-md-6 mb-4">
@@ -179,6 +202,137 @@
             </div>
         </div>
     </div>
+        </div>
+        
+        <!-- Aba Agendamentos -->
+        <div class="tab-pane fade" id="appointments" role="tabpanel" aria-labelledby="appointments-tab">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card shadow mb-4">
+                        <div class="card-header py-3 d-flex flex-row align-items-center justify-content-between">
+                            <h6 class="m-0 font-weight-bold text-primary">Gerenciar Agendamentos</h6>
+                            <div class="btn-group" role="group">
+                                <button type="button" class="btn btn-sm btn-outline-primary" onclick="loadAppointments()">
+                                    <i class="fas fa-sync-alt me-1"></i>Atualizar
+                                </button>
+                                <button type="button" class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#newAppointmentModal">
+                                    <i class="fas fa-plus me-1"></i>Novo Agendamento
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover" id="appointmentsTable">
+                                    <thead class="table-dark">
+                                        <tr>
+                                            <th>ID</th>
+                                            <th>Paciente</th>
+                                            <th>Dentista</th>
+                                            <th>Data</th>
+                                            <th>Horário</th>
+                                            <th>Status</th>
+                                            <th>Procedimentos</th>
+                                            <th>Ações</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Dados carregados via AJAX -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Filtros -->
+            <div class="row mb-4">
+                <div class="col-md-3">
+                    <label for="statusFilter" class="form-label">Filtrar por Status:</label>
+                    <select class="form-select" id="statusFilter" onchange="filterAppointments()">
+                        <option value="">Todos</option>
+                        <option value="scheduled">Agendado</option>
+                        <option value="confirmed">Confirmado</option>
+                        <option value="completed">Concluído</option>
+                        <option value="cancelled">Cancelado</option>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="dentistFilter" class="form-label">Filtrar por Dentista:</label>
+                    <select class="form-select" id="dentistFilter" onchange="filterAppointments()">
+                        <option value="">Todos</option>
+                        <!-- Carregado via AJAX -->
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="dateFromFilter" class="form-label">Data Inicial:</label>
+                    <input type="date" class="form-control" id="dateFromFilter" onchange="filterAppointments()">
+                </div>
+                <div class="col-md-3">
+                    <label for="dateToFilter" class="form-label">Data Final:</label>
+                    <input type="date" class="form-control" id="dateToFilter" onchange="filterAppointments()">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Novo Agendamento -->
+<div class="modal fade" id="newAppointmentModal" tabindex="-1" aria-labelledby="newAppointmentModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="newAppointmentModalLabel">Novo Agendamento</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="newAppointmentForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="patientSelect" class="form-label">Paciente *</label>
+                                <select class="form-select" id="patientSelect" required>
+                                    <option value="">Selecione um paciente</option>
+                                    <!-- Carregado via AJAX -->
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="dentistSelect" class="form-label">Dentista *</label>
+                                <select class="form-select" id="dentistSelect" required>
+                                    <option value="">Selecione um dentista</option>
+                                    <!-- Carregado via AJAX -->
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="appointmentDate" class="form-label">Data *</label>
+                                <input type="date" class="form-control" id="appointmentDate" required>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <label for="appointmentTime" class="form-label">Horário *</label>
+                                <input type="time" class="form-control" id="appointmentTime" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="appointmentReason" class="form-label">Motivo da Consulta</label>
+                        <textarea class="form-control" id="appointmentReason" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="createAppointment()">Criar Agendamento</button>
+            </div>
+        </div>
+    </div>
 </div>
 @endsection
 
@@ -194,6 +348,12 @@ $(document).ready(function() {
     
     // Inicializar gráficos
     initCharts();
+    
+    // Inicializar DataTable para agendamentos
+    initAppointmentsTable();
+    
+    // Carregar dados para os filtros
+    loadFilterData();
 });
 
 function loadDashboardData() {
@@ -374,6 +534,179 @@ function initCharts() {
             maintainAspectRatio: false
         }
     });
+}
+
+// Funções para gerenciar agendamentos
+function initAppointmentsTable() {
+    if ($.fn.DataTable) {
+        $('#appointmentsTable').DataTable({
+            responsive: true,
+            language: {
+                url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/pt-BR.json'
+            },
+            ajax: {
+                url: '/admin/appointments/data',
+                type: 'GET'
+            },
+            columns: [
+                { data: 'id', name: 'id' },
+                { data: 'patient_name', name: 'patient_name' },
+                { data: 'dentist_name', name: 'dentist_name' },
+                { data: 'appointment_date', name: 'appointment_date' },
+                { data: 'appointment_time', name: 'appointment_time' },
+                { data: 'status', name: 'status' },
+                { data: 'procedures', name: 'procedures' },
+                { data: 'actions', name: 'actions', orderable: false, searchable: false }
+            ]
+        });
+    }
+}
+
+function loadAppointments() {
+    if ($.fn.DataTable) {
+        $('#appointmentsTable').DataTable().ajax.reload();
+    }
+}
+
+function loadFilterData() {
+    // Carregar dentistas para o filtro
+    $.ajax({
+        url: '/admin/dentists/data',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                const dentistSelect = $('#dentistFilter');
+                const patientSelect = $('#patientSelect');
+                const dentistModalSelect = $('#dentistSelect');
+                
+                response.data.forEach(function(dentist) {
+                    const option = `<option value="${dentist.id}">${dentist.name}</option>`;
+                    dentistSelect.append(option);
+                    dentistModalSelect.append(option);
+                });
+            }
+        }
+    });
+    
+    // Carregar pacientes para o modal
+    $.ajax({
+        url: '/admin/patients/data',
+        method: 'GET',
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                const patientSelect = $('#patientSelect');
+                
+                response.data.forEach(function(patient) {
+                    const option = `<option value="${patient.id}">${patient.name}</option>`;
+                    patientSelect.append(option);
+                });
+            }
+        }
+    });
+}
+
+function filterAppointments() {
+    const status = $('#statusFilter').val();
+    const dentist = $('#dentistFilter').val();
+    const dateFrom = $('#dateFromFilter').val();
+    const dateTo = $('#dateToFilter').val();
+    
+    if ($.fn.DataTable) {
+        const table = $('#appointmentsTable').DataTable();
+        
+        // Aplicar filtros
+        table.ajax.url(`/admin/appointments/data?status=${status}&dentist=${dentist}&date_from=${dateFrom}&date_to=${dateTo}`).load();
+    }
+}
+
+function createAppointment() {
+    const formData = {
+        patient_id: $('#patientSelect').val(),
+        dentist_id: $('#dentistSelect').val(),
+        appointment_date: $('#appointmentDate').val(),
+        appointment_time: $('#appointmentTime').val(),
+        reason: $('#appointmentReason').val(),
+        status: 'scheduled'
+    };
+    
+    if (!formData.patient_id || !formData.dentist_id || !formData.appointment_date || !formData.appointment_time) {
+        alert('Por favor, preencha todos os campos obrigatórios.');
+        return;
+    }
+    
+    $.ajax({
+        url: '/api/appointments',
+        method: 'POST',
+        data: formData,
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        success: function(response) {
+            if (response.success) {
+                alert('Agendamento criado com sucesso!');
+                $('#newAppointmentModal').modal('hide');
+                $('#newAppointmentForm')[0].reset();
+                loadAppointments();
+            } else {
+                alert('Erro ao criar agendamento: ' + response.message);
+            }
+        },
+        error: function(xhr) {
+            const response = xhr.responseJSON;
+            alert('Erro ao criar agendamento: ' + (response.message || 'Erro desconhecido'));
+        }
+    });
+}
+
+function updateAppointmentStatus(appointmentId, newStatus) {
+    if (confirm('Tem certeza que deseja alterar o status deste agendamento?')) {
+        $.ajax({
+            url: `/api/appointments/${appointmentId}/status`,
+            method: 'PUT',
+            data: { status: newStatus },
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Status atualizado com sucesso!');
+                    loadAppointments();
+                } else {
+                    alert('Erro ao atualizar status: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                alert('Erro ao atualizar status: ' + (response.message || 'Erro desconhecido'));
+            }
+        });
+    }
+}
+
+function cancelAppointment(appointmentId) {
+    if (confirm('Tem certeza que deseja cancelar este agendamento?')) {
+        $.ajax({
+            url: `/api/appointments/${appointmentId}/cancel`,
+            method: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            success: function(response) {
+                if (response.success) {
+                    alert('Agendamento cancelado com sucesso!');
+                    loadAppointments();
+                } else {
+                    alert('Erro ao cancelar agendamento: ' + response.message);
+                }
+            },
+            error: function(xhr) {
+                const response = xhr.responseJSON;
+                alert('Erro ao cancelar agendamento: ' + (response.message || 'Erro desconhecido'));
+            }
+        });
+    }
 }
 </script>
 @endsection
