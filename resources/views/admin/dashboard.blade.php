@@ -495,45 +495,51 @@ function initCharts() {
     }
     
     // Gráfico de agendamentos por mês
-    const appointmentsCtx = document.getElementById('appointmentsChart').getContext('2d');
-    new Chart(appointmentsCtx, {
-        type: 'line',
-        data: {
-            labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
-            datasets: [{
-                label: 'Agendamentos',
-                data: [12, 19, 3, 5, 2, 3],
-                borderColor: 'rgb(75, 192, 192)',
-                tension: 0.1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
+    const appointmentsChart = document.getElementById('appointmentsChart');
+    if (appointmentsChart) {
+        const appointmentsCtx = appointmentsChart.getContext('2d');
+        new Chart(appointmentsCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun'],
+                datasets: [{
+                    label: 'Agendamentos',
+                    data: [12, 19, 3, 5, 2, 3],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
 
     // Gráfico de procedimentos
-    const proceduresCtx = document.getElementById('proceduresChart').getContext('2d');
-    new Chart(proceduresCtx, {
-        type: 'doughnut',
-        data: {
-            labels: ['Limpeza', 'Restauração', 'Extração', 'Ortodontia'],
-            datasets: [{
-                data: [30, 25, 20, 25],
-                backgroundColor: [
-                    '#FF6384',
-                    '#36A2EB',
-                    '#FFCE56',
-                    '#4BC0C0'
-                ]
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false
-        }
-    });
+    const proceduresChart = document.getElementById('proceduresChart');
+    if (proceduresChart) {
+        const proceduresCtx = proceduresChart.getContext('2d');
+        new Chart(proceduresCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Limpeza', 'Restauração', 'Extração', 'Ortodontia'],
+                datasets: [{
+                    data: [30, 25, 20, 25],
+                    backgroundColor: [
+                        '#FF6384',
+                        '#36A2EB',
+                        '#FFCE56',
+                        '#4BC0C0'
+                    ]
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false
+            }
+        });
+    }
 }
 
 // Funções para gerenciar agendamentos

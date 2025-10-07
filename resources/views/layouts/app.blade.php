@@ -140,19 +140,35 @@
                                     </a>
                                 </li>
                             @elseif(auth()->user()->email === 'admin@odonto360.com' || (auth()->user()->roles && auth()->user()->roles->contains('name', 'admin')))
-                                <li class="nav-item dropdown">
-                                    <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                        <i class="fas fa-cog me-1"></i>
-                                        Administração
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.dashboard') }}">
+                                        <i class="fas fa-chart-pie me-1"></i>
+                                        Painel de Controle
                                     </a>
-                                    <ul class="dropdown-menu">
-                                        <li><a class="dropdown-item" href="{{ route('admin.patients') }}">Pacientes</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('admin.dentists') }}">Dentistas</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('admin.appointments') }}">Agendamentos</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('admin.procedures') }}">Procedimentos</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('admin.specializations') }}">Especializações</a></li>
-                                        <li><a class="dropdown-item" href="{{ route('admin.reports') }}">Relatórios</a></li>
-                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('dashboard') }}">
+                                        <i class="fas fa-calendar-alt me-1"></i>
+                                        Agendamentos
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.patients') }}">
+                                        <i class="fas fa-users me-1"></i>
+                                        Pacientes
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.dentists') }}">
+                                        <i class="fas fa-user-md me-1"></i>
+                                        Dentistas
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="{{ route('admin.reports') }}">
+                                        <i class="fas fa-chart-bar me-1"></i>
+                                        Relatórios
+                                    </a>
                                 </li>
                             @endif
                         @endauth
