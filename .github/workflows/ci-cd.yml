@@ -245,58 +245,40 @@ jobs:
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
     
-    environment: production
-    
     steps:
     - name: Download build artifacts
       uses: actions/download-artifact@v3
       with:
         name: odonto360-build
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: us-east-1
-
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
-      with:
-        terraform_version: 1.5.0
-
-    - name: Terraform Init
+    - name: Simulate Deploy (Academic Project)
       run: |
-        cd infrastructure
-        terraform init
-
-    - name: Terraform Plan
-      run: |
-        cd infrastructure
-        terraform plan -var-file="terraform.tfvars.example"
-
-    - name: Terraform Apply
-      run: |
-        cd infrastructure
-        terraform apply -auto-approve -var-file="terraform.tfvars.example"
-
-    - name: Deploy Application
-      run: |
-        echo "Deploying application to AWS..."
-        # Extract and deploy the application
+        echo "🚀 SIMULATED DEPLOYMENT - ACADEMIC PROJECT"
+        echo "=========================================="
+        echo "✅ Build artifacts downloaded successfully"
+        echo "✅ Application would be deployed to AWS in production"
+        echo "✅ Terraform infrastructure would be provisioned"
+        echo "✅ Health checks would be performed"
+        echo ""
+        echo "📋 For real deployment, configure AWS secrets:"
+        echo "   - AWS_ACCESS_KEY_ID"
+        echo "   - AWS_SECRET_ACCESS_KEY"
+        echo ""
+        echo "🎓 This is an academic project - simulated deploy is sufficient"
+        
+        # Extract build for verification
         tar -xzf odonto360-*.tar.gz
-        # Here you would typically use AWS CLI or other tools to deploy
-        # For example: aws s3 sync . s3://your-bucket/
-        echo "Application deployed successfully"
+        echo "✅ Build verification completed"
+        echo "📦 Application ready for deployment"
 
-    - name: Run health check
+    - name: Create deployment summary
       run: |
-        echo "Running health check..."
-        # Wait for application to be ready
-        sleep 30
-        # Check if the application is responding
-        # curl -f http://your-load-balancer-url/api/health || exit 1
-        echo "Health check passed"
+        echo "## 🎓 Academic Project - Simulated Deployment" >> deployment-summary.txt
+        echo "Deployment simulated successfully at $(date)" >> deployment-summary.txt
+        echo "Branch: ${{ github.ref_name }}" >> deployment-summary.txt
+        echo "Commit: ${{ github.sha }}" >> deployment-summary.txt
+        echo "Author: ${{ github.actor }}" >> deployment-summary.txt
+        echo "Status: Simulated (AWS credentials not configured)" >> deployment-summary.txt
 
   notify:
     needs: [test, security, integration-test, build, deploy]
@@ -318,10 +300,11 @@ jobs:
         echo "" >> $GITHUB_STEP_SUMMARY
         
         if [ "${{ needs.deploy.result }}" == "success" ]; then
-          echo "🎉 **Deployment successful!**" >> $GITHUB_STEP_SUMMARY
+          echo "🎉 **Pipeline completed successfully!**" >> $GITHUB_STEP_SUMMARY
           echo "✅ All checks passed" >> $GITHUB_STEP_SUMMARY
+          echo "🎓 **Academic Project** - Deploy simulated (AWS not configured)" >> $GITHUB_STEP_SUMMARY
         else
-          echo "❌ **Deployment failed!**" >> $GITHUB_STEP_SUMMARY
+          echo "❌ **Pipeline failed!**" >> $GITHUB_STEP_SUMMARY
           echo "Please check the logs for details" >> $GITHUB_STEP_SUMMARY
         fi
 
