@@ -34,15 +34,15 @@ class AppointmentAITest extends TestCase
             'user_id' => $this->dentist->id,
             'crm' => '12345',
             'specialization' => 'Ortodontia',
-            'consultation_fee' => 150.00,
+            'consultation_price' => 150.00,
+            'is_active' => true,
         ]);
         
         // Create patient profile
         $this->patientProfile = Patient::create([
             'user_id' => $this->patient->id,
-            'cpf' => '12345678901',
-            'birth_date' => '1990-01-01',
-            'address' => 'Rua Teste, 123',
+            'patient_code' => 'PAT001',
+            'is_active' => true,
         ]);
         
         // Create procedures
