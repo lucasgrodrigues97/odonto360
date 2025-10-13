@@ -248,17 +248,22 @@ php artisan test
 # Testes de integração
 php artisan test --testsuite=Feature
 
-# Testes de aceite
-php artisan dusk
+# Testes com cobertura
+php artisan test --coverage
 ```
 
-## 📊 Pipeline CI/CD
+## 🚀 CI/CD Pipeline
 
-O projeto inclui pipeline completo com:
-- Testes automatizados
-- Análise de código
-- Deploy automático
-- Monitoramento de qualidade
+O projeto possui um pipeline CI/CD completo configurado com GitHub Actions:
+
+- ✅ **Testes automatizados** (PHPUnit + Laravel Dusk)
+- ✅ **Análise de segurança** (Composer audit + CodeQL)
+- ✅ **Testes de integração** (Docker)
+- ✅ **Build de produção** (Artefatos otimizados)
+- ✅ **Deploy automático** (AWS + Terraform)
+- ✅ **Notificações** (Status detalhado)
+
+**Documentação completa da pipeline**: [.github/PIPELINE.md](.github/PIPELINE.md)
 
 ## 🤝 Contribuição
 

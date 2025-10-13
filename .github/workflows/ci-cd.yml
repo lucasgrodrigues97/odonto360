@@ -331,3 +331,4 @@ jobs:
         echo "Branch: ${{ github.ref_name }}" >> deployment-summary.txt
         echo "Commit: ${{ github.sha }}" >> deployment-summary.txt
         echo "Author: ${{ github.actor }}" >> deployment-summary.txt
+        echo "For detailed pipeline documentation, see .github/PIPELINE.md" >> deployment-summary.txt
