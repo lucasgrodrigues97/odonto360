@@ -40,9 +40,9 @@ server {
         fastcgi_buffers 4 256k;
         fastcgi_busy_buffers_size 256k;
         
-        # FastCGI cache
-        fastcgi_cache app_cache;
-        fastcgi_cache_valid 60m;
+        # FastCGI cache (disabled to avoid errors)
+        # fastcgi_cache app_cache;
+        # fastcgi_cache_valid 60m;
     }
 
     # API rate limiting
