@@ -21,11 +21,10 @@ RUN apk add --no-cache \
     libzip-dev \
     mysql-client \
     freetype-dev \
-    libjpeg-turbo-dev \
-    libwebp-dev
+    libjpeg-turbo-dev
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-png \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
         mbstring \
@@ -108,12 +107,11 @@ RUN apk add --no-cache \
     mysql-client \
     freetype-dev \
     libjpeg-turbo-dev \
-    libwebp-dev \
     nginx \
     supervisor
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-webp \
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-png \
     && docker-php-ext-install -j$(nproc) \
         pdo_mysql \
         mbstring \
@@ -135,9 +133,7 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction \
-    && npm ci --only=production \
-    && npm run build
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
