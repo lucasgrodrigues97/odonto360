@@ -24,17 +24,21 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-png \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-        intl \
-        opcache
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
+# Install core extensions first
+RUN docker-php-ext-install -j$(nproc) \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    zip \
+    intl \
+    opcache
+
+# Install GD extension separately (with error handling)
+RUN docker-php-ext-install -j$(nproc) gd || echo "GD extension installation failed, continuing..."
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -108,20 +112,26 @@ RUN apk add --no-cache \
     freetype-dev \
     libjpeg-turbo-dev \
     nginx \
-    supervisor
+    supervisor \
+    nodejs \
+    npm
 
 # Install PHP extensions
-RUN docker-php-ext-configure gd --with-freetype --with-jpeg --with-png \
-    && docker-php-ext-install -j$(nproc) \
-        pdo_mysql \
-        mbstring \
-        exif \
-        pcntl \
-        bcmath \
-        gd \
-        zip \
-        intl \
-        opcache
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
+
+# Install core extensions first
+RUN docker-php-ext-install -j$(nproc) \
+    pdo_mysql \
+    mbstring \
+    exif \
+    pcntl \
+    bcmath \
+    zip \
+    intl \
+    opcache
+
+# Install GD extension separately (with error handling)
+RUN docker-php-ext-install -j$(nproc) gd || echo "GD extension installation failed, continuing..."
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -133,7 +143,9 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction \
+    && npm ci --only=production \
+    && npm run build
 
 # Set proper permissions
 RUN chown -R www-data:www-data /var/www/html \
