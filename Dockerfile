@@ -150,11 +150,12 @@ RUN npm ci --only=production && npm run build || echo "Node.js build failed, con
 
 # Create necessary directories and set proper permissions
 RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
-    /var/log/supervisor /var/run \
+    /var/log/supervisor /var/run /var/cache/nginx \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache \
     && chmod -R 755 /var/log/supervisor \
     && chmod -R 755 /var/run \
+    && chmod -R 755 /var/cache/nginx \
     && (chown -R www:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
 # Copy configuration files
@@ -174,8 +175,12 @@ RUN mkdir -p /var/www/html/resources/views \
     && php artisan route:cache \
     && (php artisan view:cache || echo "View cache failed, continuing...")
 
-# Expose port 80
-EXPOSE 80
+# Copy startup script
+COPY docker/start.sh /start.sh
+RUN chmod +x /start.sh
+
+# Expose port (will be set by environment variable)
+EXPOSE $PORT
 
 # Start supervisor
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/conf.d/supervisord.conf"]
+CMD ["/start.sh"]
