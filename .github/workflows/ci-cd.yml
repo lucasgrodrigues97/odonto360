@@ -180,43 +180,64 @@ jobs:
 
     - name: Run integration tests with Docker
       run: |
-        # Start container in background
-        docker run --rm -d --name odonto360-test \
+        # Start container in background with better error handling
+        echo "Starting container..."
+        CONTAINER_ID=$(docker run --rm -d --name odonto360-test \
           -e DB_CONNECTION=sqlite \
           -e DB_DATABASE=:memory: \
           -e APP_ENV=testing \
           -e APP_KEY=base64:$(openssl rand -base64 32) \
           -p 8000:80 \
-          odonto360:test
+          odonto360:test) || {
+          echo "Failed to start container"
+          exit 1
+        }
         
-        # Wait for application to start (increased timeout)
+        echo "Container started with ID: $CONTAINER_ID"
+        
+        # Wait for application to start with better monitoring
         echo "Waiting for application to start..."
-        sleep 45
+        for i in {1..9}; do
+          echo "Startup check $i/9"
+          if docker ps | grep -q odonto360-test; then
+            echo "Container is running, checking logs..."
+            docker logs odonto360-test --tail 20
+            break
+          else
+            echo "Container not running, attempt $i/9"
+            sleep 5
+          fi
+        done
         
-        # Check if container is running
+        # Final check if container is running
         if ! docker ps | grep -q odonto360-test; then
-          echo "Container failed to start"
-          docker logs odonto360-test
+          echo "Container failed to start after 45 seconds"
+          echo "Container logs:"
+          docker logs odonto360-test || echo "No logs available"
           exit 1
         fi
         
         # Run health check with retry
+        echo "Running health checks..."
         for i in {1..5}; do
           echo "Health check attempt $i/5"
-          if curl -f http://localhost:8000/api/health; then
+          if curl -f http://localhost:8000/api/health 2>/dev/null; then
             echo "Health check passed!"
             break
           fi
           if [ $i -eq 5 ]; then
             echo "Health check failed after 5 attempts"
-            docker logs odonto360-test
+            echo "Container logs:"
+            docker logs odonto360-test --tail 50
             exit 1
           fi
+          echo "Health check failed, retrying in 10 seconds..."
           sleep 10
         done
         
         # Clean up
-        docker stop odonto360-test
+        echo "Cleaning up container..."
+        docker stop odonto360-test || echo "Container already stopped"
 
   build:
     needs: [test, security, integration-test]
