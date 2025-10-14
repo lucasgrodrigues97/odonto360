@@ -132,7 +132,8 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --quiet
+RUN composer validate --no-check-publish && \
+    composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-reqs --no-scripts --prefer-dist
 
 # Verify Node.js installation and install dependencies
 RUN node --version && npm --version || echo "Node.js not available, skipping..."
