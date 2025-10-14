@@ -1,0 +1,66 @@
+# Git
+.git
+.gitignore
+README.md
+CHANGELOG.md
+
+# Documentation
+*.md
+docs/
+
+# Development files
+.env
+.env.local
+.env.development
+.env.testing
+.env.production
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+storage/logs/
+
+# Cache
+bootstrap/cache/*
+storage/framework/cache/*
+storage/framework/sessions/*
+storage/framework/views/*
+
+# Node modules (will be installed during build)
+node_modules/
+npm-debug.log*
+
+# Vendor (will be installed during build)
+vendor/
+
+# Test files
+tests/
+phpunit.xml
+phpunit.xml.dist
+phpunit.xml.mysql
+
+# Docker files
+docker-compose.yml
+docker-compose.override.yml
+Dockerfile.dev
+
+# Infrastructure
+infrastructure/
+terraform/
+
+# Scripts
+scripts/
+
+# Other
+.editorconfig
+.gitattributes

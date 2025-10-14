@@ -29,7 +29,16 @@ server {
         fastcgi_pass 127.0.0.1:9000;
         fastcgi_index index.php;
         fastcgi_param SCRIPT_FILENAME \$document_root\$fastcgi_script_name;
+        fastcgi_param PATH_INFO \$fastcgi_path_info;
         include fastcgi_params;
+        
+        # FastCGI settings
+        fastcgi_connect_timeout 60s;
+        fastcgi_send_timeout 60s;
+        fastcgi_read_timeout 60s;
+        fastcgi_buffer_size 128k;
+        fastcgi_buffers 4 256k;
+        fastcgi_busy_buffers_size 256k;
         
         # FastCGI cache
         fastcgi_cache app_cache;
@@ -83,6 +92,10 @@ server {
     }
 }
 EOF
+
+# Test if PHP-FPM is available
+echo "Testing PHP-FPM connection..."
+timeout 10 bash -c 'until nc -z 127.0.0.1 9000; do sleep 1; done' || echo "PHP-FPM not ready, continuing..."
 
 # Start supervisor
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf

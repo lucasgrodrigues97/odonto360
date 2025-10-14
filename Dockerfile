@@ -30,12 +30,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install pdo_mysql mbstring zip opcache || echo "Some extensions failed, continuing..."
 
 # Try to install optional extensions
-RUN docker-php-ext-install exif || echo "exif failed, continuing..."
-RUN docker-php-ext-install bcmath || echo "bcmath failed, continuing..."
-RUN docker-php-ext-install intl || echo "intl failed, continuing..."
-
-# Try GD extension (optional for basic functionality)
-RUN docker-php-ext-install gd || echo "GD extension failed, continuing..."
+# Try to install optional extensions (parallel build)
+RUN docker-php-ext-install -j$(nproc) exif bcmath intl gd || echo "Optional extensions failed, continuing..."
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -123,12 +119,8 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 RUN docker-php-ext-install pdo_mysql mbstring zip opcache || echo "Some extensions failed, continuing..."
 
 # Try to install optional extensions
-RUN docker-php-ext-install exif || echo "exif failed, continuing..."
-RUN docker-php-ext-install bcmath || echo "bcmath failed, continuing..."
-RUN docker-php-ext-install intl || echo "intl failed, continuing..."
-
-# Try GD extension (optional for basic functionality)
-RUN docker-php-ext-install gd || echo "GD extension failed, continuing..."
+# Try to install optional extensions (parallel build)
+RUN docker-php-ext-install -j$(nproc) exif bcmath intl gd || echo "Optional extensions failed, continuing..."
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -140,13 +132,13 @@ WORKDIR /var/www/html
 COPY . .
 
 # Install dependencies
-RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction
+RUN composer install --no-dev --optimize-autoloader --no-scripts --no-interaction --quiet
 
 # Verify Node.js installation and install dependencies
 RUN node --version && npm --version || echo "Node.js not available, skipping..."
 
 # Install Node.js dependencies and build assets (with error handling)
-RUN npm ci --only=production && npm run build || echo "Node.js build failed, continuing..."
+RUN npm ci --only=production --silent && npm run build --silent || echo "Node.js build failed, continuing..."
 
 # Create necessary directories and set proper permissions
 RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
