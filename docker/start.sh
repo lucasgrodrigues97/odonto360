@@ -111,6 +111,28 @@ chmod -R 775 /var/www/html/bootstrap/cache
 chown -R www-data:www-data /var/www/html/storage
 chown -R www-data:www-data /var/www/html/bootstrap/cache
 
+# Clear and recreate Laravel cache
+echo "Clearing Laravel cache..."
+cd /var/www/html
+php artisan config:clear || echo "Config clear failed"
+php artisan cache:clear || echo "Cache clear failed"
+php artisan view:clear || echo "View clear failed"
+php artisan route:clear || echo "Route clear failed"
+
+# Check .env file
+echo "Checking .env file..."
+if [ ! -f /var/www/html/.env ]; then
+    echo "Creating .env file..."
+    cp /var/www/html/.env.example /var/www/html/.env
+    php artisan key:generate --no-interaction || echo "Key generate failed"
+fi
+
+# Recreate cache
+echo "Recreating Laravel cache..."
+php artisan config:cache || echo "Config cache failed"
+php artisan route:cache || echo "Route cache failed"
+php artisan view:cache || echo "View cache failed"
+
 # Check if Laravel index.php exists
 if [ ! -f /var/www/html/public/index.php ]; then
     echo "Laravel index.php not found, checking Laravel installation..."
