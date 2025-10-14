@@ -97,6 +97,15 @@ EOF
 echo "Testing PHP-FPM connection..."
 timeout 10 sh -c 'until nc -z 127.0.0.1 9000; do sleep 1; done' || echo "PHP-FPM not ready, continuing..."
 
+# Create public directory if it doesn't exist
+mkdir -p /var/www/html/public
+
+# Check if Laravel index.php exists
+if [ ! -f /var/www/html/public/index.php ]; then
+    echo "Laravel index.php not found, creating basic one..."
+    echo "<?php echo 'Laravel not properly installed'; ?>" > /var/www/html/public/index.php
+fi
+
 # Create a simple test file
 echo "<?php echo 'PHP is working!'; ?>" > /var/www/html/public/test.php
 

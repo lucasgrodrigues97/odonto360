@@ -52,9 +52,10 @@ COPY . .
 COPY --from=node-build /app/node_modules ./node_modules
 
 # Create necessary directories and set proper permissions
-RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/public \
     && (chown -R www:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
 # Create .env file from example
