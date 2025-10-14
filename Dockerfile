@@ -150,8 +150,11 @@ RUN npm ci --only=production && npm run build || echo "Node.js build failed, con
 
 # Create necessary directories and set proper permissions
 RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+    /var/log/supervisor /var/run \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/log/supervisor \
+    && chmod -R 755 /var/run \
     && (chown -R www:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
 # Copy configuration files
