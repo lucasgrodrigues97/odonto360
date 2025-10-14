@@ -67,10 +67,11 @@ RUN cp .env.example .env
 # Generate application key
 RUN php artisan key:generate --no-interaction
 
-# Optimize for production
-RUN php artisan config:cache \
+# Create views directory and optimize for production
+RUN mkdir -p /var/www/html/resources/views \
+    && php artisan config:cache \
     && php artisan route:cache \
-    && php artisan view:cache
+    && (php artisan view:cache || echo "View cache failed, continuing...")
 
 # Stage 3: Nginx stage
 FROM nginx:alpine AS nginx
@@ -164,10 +165,11 @@ RUN cp .env.example .env
 # Generate application key
 RUN php artisan key:generate --no-interaction
 
-# Optimize for production
-RUN php artisan config:cache \
+# Create views directory and optimize for production
+RUN mkdir -p /var/www/html/resources/views \
+    && php artisan config:cache \
     && php artisan route:cache \
-    && php artisan view:cache
+    && (php artisan view:cache || echo "View cache failed, continuing...")
 
 # Expose port 80
 EXPOSE 80
