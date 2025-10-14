@@ -95,7 +95,10 @@ EOF
 
 # Test if PHP-FPM is available
 echo "Testing PHP-FPM connection..."
-timeout 10 bash -c 'until nc -z 127.0.0.1 9000; do sleep 1; done' || echo "PHP-FPM not ready, continuing..."
+timeout 10 sh -c 'until nc -z 127.0.0.1 9000; do sleep 1; done' || echo "PHP-FPM not ready, continuing..."
+
+# Create a simple test file
+echo "<?php echo 'PHP is working!'; ?>" > /var/www/html/public/test.php
 
 # Start supervisor
 exec /usr/bin/supervisord -c /etc/supervisor/conf.d/supervisord.conf
