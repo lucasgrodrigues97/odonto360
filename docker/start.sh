@@ -119,6 +119,31 @@ php artisan cache:clear || echo "Cache clear failed"
 php artisan view:clear || echo "View clear failed"
 php artisan route:clear || echo "Route clear failed"
 
+# Configure database connection for Railway
+echo "Configuring database connection..."
+if [ -n "$MYSQL_PUBLIC_URL" ]; then
+    echo "Using MYSQL_PUBLIC_URL for external access"
+    # Extract connection details from MYSQL_PUBLIC_URL
+    DB_HOST=$(echo $MYSQL_PUBLIC_URL | sed 's/.*@\([^:]*\):\([0-9]*\)\/.*/\1/')
+    DB_PORT=$(echo $MYSQL_PUBLIC_URL | sed 's/.*@\([^:]*\):\([0-9]*\)\/.*/\2/')
+    DB_DATABASE=$(echo $MYSQL_PUBLIC_URL | sed 's/.*\/\([^?]*\).*/\1/')
+    DB_USERNAME=$(echo $MYSQL_PUBLIC_URL | sed 's/.*:\/\/\([^:]*\):.*/\1/')
+    DB_PASSWORD=$(echo $MYSQL_PUBLIC_URL | sed 's/.*:\/\/\([^:]*\):\([^@]*\)@.*/\2/')
+    
+    # Update .env file
+    sed -i "s/DB_HOST=.*/DB_HOST=$DB_HOST/" /var/www/html/.env
+    sed -i "s/DB_PORT=.*/DB_PORT=$DB_PORT/" /var/www/html/.env
+    sed -i "s/DB_DATABASE=.*/DB_DATABASE=$DB_DATABASE/" /var/www/html/.env
+    sed -i "s/DB_USERNAME=.*/DB_USERNAME=$DB_USERNAME/" /var/www/html/.env
+    sed -i "s/DB_PASSWORD=.*/DB_PASSWORD=$DB_PASSWORD/" /var/www/html/.env
+    
+    echo "Database configured: $DB_HOST:$DB_PORT/$DB_DATABASE"
+    
+    # Test database connection
+    echo "Testing database connection..."
+    timeout 10 sh -c "until nc -z $DB_HOST $DB_PORT; do sleep 1; done" && echo "Database connection successful" || echo "Database connection failed"
+fi
+
 # Check .env file
 echo "Checking .env file..."
 if [ ! -f /var/www/html/.env ]; then
@@ -202,6 +227,7 @@ EOF
         echo "<?php echo 'Laravel not properly installed'; ?>" > /var/www/html/public/index.php
     fi
 fi
+
 
 # Create a simple test file
 echo "<?php echo 'PHP is working!'; ?>" > /var/www/html/public/test.php
