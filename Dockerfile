@@ -56,9 +56,9 @@ COPY . .
 COPY --from=node-build /app/node_modules ./node_modules
 
 # Set proper permissions
-RUN chown -R www:www /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+RUN chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache \
+    && (chown -R www:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
 # Create .env file from example
 RUN cp .env.example .env
@@ -83,8 +83,8 @@ COPY --from=php-base /var/www/html /var/www/html
 
 # Create nginx user and set permissions
 RUN adduser -D -S -G www nginx \
-    && chown -R nginx:www-data /var/www/html \
-    && chmod -R 755 /var/www/html
+    && chmod -R 755 /var/www/html \
+    && (chown -R nginx:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
 # Expose port 80
 EXPOSE 80
@@ -147,9 +147,9 @@ RUN node --version && npm --version || echo "Node.js not available, skipping..."
 RUN npm ci --only=production && npm run build || echo "Node.js build failed, continuing..."
 
 # Set proper permissions
-RUN chown -R www:www /var/www/html \
-    && chmod -R 755 /var/www/html/storage \
-    && chmod -R 755 /var/www/html/bootstrap/cache
+RUN chmod -R 755 /var/www/html/storage \
+    && chmod -R 755 /var/www/html/bootstrap/cache \
+    && (chown -R www:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
 # Copy configuration files
 COPY docker/nginx.conf /etc/nginx/nginx.conf
