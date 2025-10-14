@@ -117,7 +117,7 @@ class OAuthController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Token do Google revogado com sucesso',
+                'message' => 'Google token revoked successfully',
             ]);
 
         } catch (\Exception $e) {

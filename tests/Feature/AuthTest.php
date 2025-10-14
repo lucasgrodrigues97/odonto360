@@ -11,6 +11,14 @@ class AuthTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Seed roles and permissions
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+    }
+
     public function test_user_can_register()
     {
         $userData = [

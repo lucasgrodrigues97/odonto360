@@ -19,6 +19,9 @@ class AppointmentAITest extends TestCase
     {
         parent::setUp();
 
+        // Seed roles and permissions
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+
         // Create test users
         $this->admin = User::factory()->create(['email' => 'admin@test.com']);
         $this->admin->assignRole('admin');

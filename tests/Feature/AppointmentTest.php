@@ -18,6 +18,9 @@ class AppointmentTest extends TestCase
     {
         parent::setUp();
 
+        // Seed roles and permissions
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+
         // Create test users and their related models
         $this->patientUser = User::factory()->create();
         $this->patient = Patient::factory()->create(['user_id' => $this->patientUser->id]);

@@ -12,6 +12,14 @@ class OAuthTest extends TestCase
 {
     use RefreshDatabase, WithFaker;
 
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        // Seed roles and permissions
+        $this->seed(\Database\Seeders\RolePermissionSeeder::class);
+    }
+
     public function test_google_oauth_redirect_works()
     {
         $response = $this->get('/auth/google');
