@@ -67,6 +67,6 @@ class Procedure extends Model
      */
     public function getFormattedPriceAttribute()
     {
-        return 'R$ ' . number_format($this->price, 2, ',', '.');
+        return 'R$ '.number_format($this->price, 2, ',', '.');
     }
 }

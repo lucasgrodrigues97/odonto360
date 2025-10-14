@@ -2,11 +2,11 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
+use App\Models\Appointment;
 use App\Models\Dentist;
 use App\Models\Patient;
-use App\Models\Appointment;
 use App\Models\Procedure;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Foundation\Testing\WithFaker;
 use Tests\TestCase;
@@ -18,17 +18,17 @@ class AppointmentAITest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create test users
         $this->admin = User::factory()->create(['email' => 'admin@test.com']);
         $this->admin->assignRole('admin');
-        
+
         $this->dentist = User::factory()->create(['email' => 'dentist@test.com']);
         $this->dentist->assignRole('dentist');
-        
+
         $this->patient = User::factory()->create(['email' => 'patient@test.com']);
         $this->patient->assignRole('patient');
-        
+
         // Create dentist profile
         $this->dentistProfile = Dentist::create([
             'user_id' => $this->dentist->id,
@@ -37,14 +37,14 @@ class AppointmentAITest extends TestCase
             'consultation_price' => 150.00,
             'is_active' => true,
         ]);
-        
+
         // Create patient profile
         $this->patientProfile = Patient::create([
             'user_id' => $this->patient->id,
             'patient_code' => 'PAT001',
             'is_active' => true,
         ]);
-        
+
         // Create procedures
         $this->procedure = Procedure::create([
             'name' => 'Limpeza',
@@ -58,7 +58,7 @@ class AppointmentAITest extends TestCase
     public function test_ai_suggestions_require_authentication()
     {
         $response = $this->getJson('/api/appointments/ai-suggestions');
-        
+
         $response->assertStatus(401);
     }
 
@@ -66,15 +66,15 @@ class AppointmentAITest extends TestCase
     {
         $response = $this->actingAs($this->patient, 'sanctum')
             ->getJson('/api/appointments/ai-suggestions');
-        
+
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'data' => [
                     'suggestions',
                     'confidence',
-                    'reasoning'
-                ]
+                    'reasoning',
+                ],
             ]);
     }
 
@@ -82,47 +82,47 @@ class AppointmentAITest extends TestCase
     {
         $response = $this->actingAs($this->patient, 'sanctum')
             ->getJson('/api/appointments/ai-analysis/999');
-        
+
         $response->assertStatus(404);
     }
 
     public function test_ai_analysis_works_with_valid_dentist()
     {
         $response = $this->actingAs($this->patient, 'sanctum')
-            ->getJson('/api/appointments/ai-analysis/' . $this->dentistProfile->id);
-        
+            ->getJson('/api/appointments/ai-analysis/'.$this->dentistProfile->id);
+
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'data' => [
                     'patterns',
                     'recommendations',
-                    'insights'
-                ]
+                    'insights',
+                ],
             ]);
     }
 
     public function test_ai_predictions_require_date()
     {
         $response = $this->actingAs($this->patient, 'sanctum')
-            ->getJson('/api/appointments/ai-predictions/' . $this->dentistProfile->id);
-        
+            ->getJson('/api/appointments/ai-predictions/'.$this->dentistProfile->id);
+
         $response->assertStatus(422);
     }
 
     public function test_ai_predictions_work_with_valid_data()
     {
         $response = $this->actingAs($this->patient, 'sanctum')
-            ->getJson('/api/appointments/ai-predictions/' . $this->dentistProfile->id . '?date=' . now()->addDays(7)->format('Y-m-d'));
-        
+            ->getJson('/api/appointments/ai-predictions/'.$this->dentistProfile->id.'?date='.now()->addDays(7)->format('Y-m-d'));
+
         $response->assertStatus(200)
             ->assertJsonStructure([
                 'success',
                 'data' => [
                     'optimal_times',
                     'confidence_scores',
-                    'reasoning'
-                ]
+                    'reasoning',
+                ],
             ]);
     }
 
@@ -140,10 +140,10 @@ class AppointmentAITest extends TestCase
         ]);
 
         $response = $this->actingAs($this->patient, 'sanctum')
-            ->getJson('/api/appointments/ai-suggestions?dentist_id=' . $this->dentistProfile->id);
-        
+            ->getJson('/api/appointments/ai-suggestions?dentist_id='.$this->dentistProfile->id);
+
         $response->assertStatus(200);
-        
+
         $data = $response->json('data');
         $this->assertNotEmpty($data['suggestions']);
     }

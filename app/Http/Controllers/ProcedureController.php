@@ -20,7 +20,7 @@ class ProcedureController extends Controller
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('code', 'like', "%{$search}%");
+                    ->orWhere('code', 'like', "%{$search}%");
             });
         }
 
@@ -46,7 +46,7 @@ class ProcedureController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $procedures
+            'data' => $procedures,
         ]);
     }
 
@@ -59,7 +59,7 @@ class ProcedureController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $procedure
+            'data' => $procedure,
         ]);
     }
 
@@ -82,7 +82,7 @@ class ProcedureController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -91,7 +91,7 @@ class ProcedureController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Procedimento criado com sucesso',
-            'data' => $procedure
+            'data' => $procedure,
         ], 201);
     }
 
@@ -105,7 +105,7 @@ class ProcedureController extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string|max:1000',
-            'code' => 'sometimes|string|max:20|unique:procedures,code,' . $id,
+            'code' => 'sometimes|string|max:20|unique:procedures,code,'.$id,
             'price' => 'sometimes|numeric|min:0|max:9999.99',
             'duration' => 'sometimes|integer|min:15|max:480',
             'category' => 'sometimes|string|max:100',
@@ -116,7 +116,7 @@ class ProcedureController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -125,7 +125,7 @@ class ProcedureController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Procedimento atualizado com sucesso',
-            'data' => $procedure
+            'data' => $procedure,
         ]);
     }
 
@@ -140,7 +140,7 @@ class ProcedureController extends Controller
         if ($procedure->appointments()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Não é possível excluir procedimento que está sendo usado em agendamentos'
+                'message' => 'Não é possível excluir procedimento que está sendo usado em agendamentos',
             ], 422);
         }
 
@@ -148,7 +148,7 @@ class ProcedureController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Procedimento excluído com sucesso'
+            'message' => 'Procedimento excluído com sucesso',
         ]);
     }
 
@@ -164,7 +164,7 @@ class ProcedureController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $procedures
+            'data' => $procedures,
         ]);
     }
 
@@ -181,7 +181,7 @@ class ProcedureController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $categories
+            'data' => $categories,
         ]);
     }
 
@@ -196,7 +196,7 @@ class ProcedureController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $procedures
+            'data' => $procedures,
         ]);
     }
 }

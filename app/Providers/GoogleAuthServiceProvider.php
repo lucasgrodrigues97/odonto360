@@ -22,6 +22,7 @@ class GoogleAuthServiceProvider extends ServiceProvider
     {
         Socialite::extend('google', function ($app) {
             $config = $app['config']['services.google'];
+
             return Socialite::buildProvider(
                 \Laravel\Socialite\Two\GoogleProvider::class,
                 $config

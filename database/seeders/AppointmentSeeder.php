@@ -2,12 +2,12 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Appointment;
-use App\Models\Patient;
 use App\Models\Dentist;
+use App\Models\Patient;
 use App\Models\Procedure;
 use Carbon\Carbon;
+use Illuminate\Database\Seeder;
 
 class AppointmentSeeder extends Seeder
 {
@@ -22,12 +22,13 @@ class AppointmentSeeder extends Seeder
 
         if ($patients->isEmpty() || $dentists->isEmpty() || $procedures->isEmpty()) {
             $this->command->warn('Patients, Dentists, or Procedures not found. Skipping appointments seeding.');
+
             return;
         }
 
         // Criar mais agendamentos para popular os gráficos
         $appointments = [];
-        
+
         // Agendamentos dos últimos 30 dias com diferentes status
         for ($i = 0; $i < 50; $i++) {
             $appointments[] = [
@@ -37,10 +38,10 @@ class AppointmentSeeder extends Seeder
                 'appointment_time' => sprintf('%02d:%02d:00', rand(8, 18), rand(0, 59)),
                 'duration' => rand(30, 120),
                 'status' => ['scheduled', 'confirmed', 'completed', 'cancelled', 'no_show'][rand(0, 4)],
-                'reason' => 'Consulta gerada automaticamente ' . ($i + 1),
+                'reason' => 'Consulta gerada automaticamente '.($i + 1),
             ];
         }
-        
+
         // Adicionar alguns agendamentos de hoje para garantir dados
         for ($i = 0; $i < 5; $i++) {
             $appointments[] = [
@@ -50,10 +51,10 @@ class AppointmentSeeder extends Seeder
                 'appointment_time' => sprintf('%02d:%02d:00', rand(8, 18), rand(0, 59)),
                 'duration' => rand(30, 120),
                 'status' => ['scheduled', 'confirmed', 'completed'][rand(0, 2)],
-                'reason' => 'Consulta de hoje ' . ($i + 1),
+                'reason' => 'Consulta de hoje '.($i + 1),
             ];
         }
-        
+
         // Adicionar alguns agendamentos específicos
         $appointments = array_merge($appointments, [
             [
@@ -105,7 +106,7 @@ class AppointmentSeeder extends Seeder
 
         foreach ($appointments as $appointmentData) {
             $appointment = Appointment::create($appointmentData);
-            
+
             // Attach random procedures to appointments with prices
             $randomProcedures = $procedures->random(rand(1, 3));
             $procedureData = [];
@@ -113,7 +114,7 @@ class AppointmentSeeder extends Seeder
                 $procedureData[$procedure->id] = [
                     'price' => $procedure->price,
                     'quantity' => 1,
-                    'notes' => null
+                    'notes' => null,
                 ];
             }
             $appointment->procedures()->attach($procedureData);

@@ -3,8 +3,8 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
+use Spatie\Permission\Models\Role;
 
 class RolePermissionSeeder extends Seeder
 {
@@ -25,7 +25,7 @@ class RolePermissionSeeder extends Seeder
             'create-appointment',
             'cancel-own-appointment',
             'reschedule-own-appointment',
-            
+
             // Dentist permissions
             'view-dentist-profile',
             'update-dentist-profile',
@@ -36,7 +36,7 @@ class RolePermissionSeeder extends Seeder
             'view-medical-history',
             'create-treatment',
             'update-treatment',
-            
+
             // Admin permissions
             'view-all-users',
             'create-user',

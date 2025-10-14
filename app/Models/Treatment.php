@@ -43,8 +43,11 @@ class Treatment extends Model
      * The possible status values for treatments.
      */
     const STATUS_PLANNED = 'planned';
+
     const STATUS_IN_PROGRESS = 'in_progress';
+
     const STATUS_COMPLETED = 'completed';
+
     const STATUS_CANCELLED = 'cancelled';
 
     /**

@@ -17,11 +17,11 @@ class AppointmentTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        
+
         // Create test users and their related models
         $this->patientUser = User::factory()->create();
         $this->patient = Patient::factory()->create(['user_id' => $this->patientUser->id]);
-        
+
         $this->dentistUser = User::factory()->create();
         $this->dentist = Dentist::factory()->create(['user_id' => $this->dentistUser->id]);
     }
@@ -29,7 +29,7 @@ class AppointmentTest extends TestCase
     public function test_patient_can_create_appointment()
     {
         $this->patientUser->assignRole('patient');
-        
+
         $appointmentData = [
             'dentist_id' => $this->dentist->id,
             'appointment_date' => now()->addDays(1)->format('Y-m-d'),
@@ -65,7 +65,7 @@ class AppointmentTest extends TestCase
     public function test_patient_can_view_their_appointments()
     {
         $this->patientUser->assignRole('patient');
-        
+
         $appointment = Appointment::factory()->create([
             'patient_id' => $this->patient->id,
             'dentist_id' => $this->dentist->id,
@@ -95,7 +95,7 @@ class AppointmentTest extends TestCase
     public function test_dentist_can_view_their_appointments()
     {
         $this->dentistUser->assignRole('dentist');
-        
+
         $appointment = Appointment::factory()->create([
             'patient_id' => $this->patient->id,
             'dentist_id' => $this->dentist->id,
@@ -125,7 +125,7 @@ class AppointmentTest extends TestCase
     public function test_dentist_can_update_appointment_status()
     {
         $this->dentistUser->assignRole('dentist');
-        
+
         $appointment = Appointment::factory()->create([
             'patient_id' => $this->patient->id,
             'dentist_id' => $this->dentist->id,
@@ -155,7 +155,7 @@ class AppointmentTest extends TestCase
     public function test_patient_can_cancel_appointment()
     {
         $this->patientUser->assignRole('patient');
-        
+
         $appointment = Appointment::factory()->create([
             'patient_id' => $this->patient->id,
             'dentist_id' => $this->dentist->id,
@@ -184,7 +184,7 @@ class AppointmentTest extends TestCase
     public function test_cannot_create_appointment_with_invalid_data()
     {
         $this->patientUser->assignRole('patient');
-        
+
         $appointmentData = [
             'dentist_id' => 999, // Non-existent dentist
             'appointment_date' => 'invalid-date',
@@ -205,7 +205,7 @@ class AppointmentTest extends TestCase
     public function test_cannot_create_appointment_in_past()
     {
         $this->patientUser->assignRole('patient');
-        
+
         $appointmentData = [
             'dentist_id' => $this->dentist->id,
             'appointment_date' => now()->subDays(1)->format('Y-m-d'),

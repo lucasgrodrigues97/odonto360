@@ -2,10 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use App\Models\Appointment;
-use App\Models\Patient;
 use App\Models\Dentist;
+use App\Models\Patient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -17,19 +16,21 @@ class DashboardController extends Controller
     public function getStats(Request $request)
     {
         $user = auth()->user();
-        
-        \Log::info('Dashboard stats requested by user: ' . ($user ? $user->email : 'not authenticated'));
-        
+
+        \Log::info('Dashboard stats requested by user: '.($user ? $user->email : 'not authenticated'));
+
         // Simplificar temporariamente - sempre retornar stats de admin
         try {
             $stats = $this->getAdminStats();
             \Log::info('Dashboard stats generated successfully', $stats->getData(true));
+
             return $stats;
         } catch (\Exception $e) {
-            \Log::error('Error generating dashboard stats: ' . $e->getMessage());
+            \Log::error('Error generating dashboard stats: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao carregar estatísticas: ' . $e->getMessage()
+                'message' => 'Erro ao carregar estatísticas: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -41,7 +42,7 @@ class DashboardController extends Controller
     {
         $user = auth()->user();
         $limit = $request->get('limit', 10);
-        
+
         // Simplificar temporariamente - sempre retornar agendamentos de admin
         try {
             $appointments = Appointment::with(['patient.user', 'dentist.user', 'procedures'])
@@ -49,27 +50,28 @@ class DashboardController extends Controller
                 ->orderBy('appointment_time', 'desc')
                 ->limit($limit)
                 ->get();
-                
-            \Log::info('Agendamentos encontrados: ' . $appointments->count());
+
+            \Log::info('Agendamentos encontrados: '.$appointments->count());
             \Log::info('Primeiro agendamento: ', $appointments->first() ? $appointments->first()->toArray() : 'Nenhum');
         } catch (\Exception $e) {
-            \Log::error('Erro ao carregar agendamentos: ' . $e->getMessage());
+            \Log::error('Erro ao carregar agendamentos: '.$e->getMessage());
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao carregar agendamentos: ' . $e->getMessage()
+                'message' => 'Erro ao carregar agendamentos: '.$e->getMessage(),
             ], 500);
         }
-        
+
         return response()->json([
             'success' => true,
             'data' => $appointments->map(function ($appointment) {
                 return [
                     'id' => $appointment->id,
                     'date' => $appointment->appointment_date,
-                    'time' => $appointment->appointment_time ? 
-                        (is_string($appointment->appointment_time) ? 
-                            substr($appointment->appointment_time, 0, 5) : 
-                            $appointment->appointment_time->format('H:i')) : 
+                    'time' => $appointment->appointment_time ?
+                        (is_string($appointment->appointment_time) ?
+                            substr($appointment->appointment_time, 0, 5) :
+                            $appointment->appointment_time->format('H:i')) :
                         '-',
                     'status' => $appointment->status,
                     'patient_name' => $appointment->patient->user->name ?? 'N/A',
@@ -77,7 +79,7 @@ class DashboardController extends Controller
                     'procedures' => $appointment->procedures->pluck('name')->toArray(),
                     'reason' => $appointment->reason,
                 ];
-            })
+            }),
         ]);
     }
 
@@ -89,12 +91,12 @@ class DashboardController extends Controller
         $totalPatients = Patient::count();
         $activeDentists = Dentist::count();
         $todayAppointments = Appointment::whereDate('appointment_date', today())->count();
-        
+
         // Calcular receita total de forma mais simples
         $totalRevenue = Appointment::where('status', 'completed')
             ->with('procedures')
             ->get()
-            ->sum(function($appointment) {
+            ->sum(function ($appointment) {
                 return $appointment->procedures->sum('price');
             });
 
@@ -105,7 +107,7 @@ class DashboardController extends Controller
                 'active_dentists' => $activeDentists,
                 'today_appointments' => $todayAppointments,
                 'total_revenue' => $totalRevenue,
-            ]
+            ],
         ]);
     }
 
@@ -115,13 +117,13 @@ class DashboardController extends Controller
     private function getDentistStats($user)
     {
         $dentist = $user->dentist;
-        
+
         $todayAppointments = Appointment::where('dentist_id', $dentist->id)
             ->whereDate('appointment_date', today())
             ->count();
-            
+
         $totalAppointments = Appointment::where('dentist_id', $dentist->id)->count();
-        
+
         $monthlyRevenue = Appointment::where('dentist_id', $dentist->id)
             ->where('status', 'completed')
             ->whereMonth('appointment_date', now()->month)
@@ -136,7 +138,7 @@ class DashboardController extends Controller
                 'today_appointments' => $todayAppointments,
                 'total_appointments' => $totalAppointments,
                 'monthly_revenue' => $monthlyRevenue,
-            ]
+            ],
         ]);
     }
 
@@ -146,7 +148,7 @@ class DashboardController extends Controller
     private function getPatientStats($user)
     {
         $patient = $user->patient;
-        
+
         $totalAppointments = Appointment::where('patient_id', $patient->id)->count();
         $upcomingAppointments = Appointment::where('patient_id', $patient->id)
             ->where('appointment_date', '>=', today())
@@ -158,7 +160,7 @@ class DashboardController extends Controller
             'data' => [
                 'total_appointments' => $totalAppointments,
                 'upcoming_appointments' => $upcomingAppointments,
-            ]
+            ],
         ]);
     }
 }

@@ -111,9 +111,9 @@ class Dentist extends Model
     public function isAvailable($date, $time)
     {
         $dayOfWeek = date('N', strtotime($date));
-        
+
         // Check if dentist works on this day
-        if (!in_array($dayOfWeek, $this->available_days ?? [])) {
+        if (! in_array($dayOfWeek, $this->available_days ?? [])) {
             return false;
         }
 
@@ -130,6 +130,6 @@ class Dentist extends Model
             ->whereIn('status', ['scheduled', 'confirmed'])
             ->exists();
 
-        return !$existingAppointment;
+        return ! $existingAppointment;
     }
 }

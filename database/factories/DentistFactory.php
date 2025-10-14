@@ -22,7 +22,7 @@ class DentistFactory extends Factory
             'crm' => fake()->unique()->numerify('######'),
             'specialization' => fake()->randomElement([
                 'Odontologia Geral', 'Ortodontia', 'Endodontia', 'Periodontia',
-                'Implantodontia', 'Odontopediatria', 'Prótese Dentária'
+                'Implantodontia', 'Odontopediatria', 'Prótese Dentária',
             ]),
             'experience_years' => fake()->numberBetween(1, 30),
             'consultation_duration' => fake()->randomElement([30, 45, 60, 90, 120]),

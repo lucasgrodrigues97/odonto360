@@ -15,14 +15,14 @@ class RoleMiddleware
      */
     public function handle(Request $request, Closure $next, string $role): Response
     {
-        if (!$request->user() || !$request->user()->hasRole($role)) {
+        if (! $request->user() || ! $request->user()->hasRole($role)) {
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Acesso negado. Você não tem permissão para acessar este recurso.'
+                    'message' => 'Acesso negado. Você não tem permissão para acessar este recurso.',
                 ], 403);
             }
-            
+
             abort(403, 'Acesso negado.');
         }
 

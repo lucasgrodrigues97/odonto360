@@ -6,7 +6,6 @@ use App\Models\Patient;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
 
 class PatientController extends Controller
 {
@@ -22,7 +21,7 @@ class PatientController extends Controller
             $search = $request->search;
             $query->whereHas('user', function ($q) use ($search) {
                 $q->where('name', 'like', "%{$search}%")
-                  ->orWhere('email', 'like', "%{$search}%");
+                    ->orWhere('email', 'like', "%{$search}%");
             });
         }
 
@@ -35,7 +34,7 @@ class PatientController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $patients
+            'data' => $patients,
         ]);
     }
 
@@ -45,11 +44,11 @@ class PatientController extends Controller
     public function show(Request $request, $id = null)
     {
         // If no ID provided, get current user's patient profile
-        if (!$id) {
-            if (!$request->user()->isPatient()) {
+        if (! $id) {
+            if (! $request->user()->isPatient()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um paciente'
+                    'message' => 'Usuário não é um paciente',
                 ], 403);
             }
             $patient = $request->user()->patient;
@@ -60,7 +59,7 @@ class PatientController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $patient
+            'data' => $patient,
         ]);
     }
 
@@ -70,11 +69,11 @@ class PatientController extends Controller
     public function update(Request $request, $id = null)
     {
         // If no ID provided, update current user's patient profile
-        if (!$id) {
-            if (!$request->user()->isPatient()) {
+        if (! $id) {
+            if (! $request->user()->isPatient()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um paciente'
+                    'message' => 'Usuário não é um paciente',
                 ], 403);
             }
             $patient = $request->user()->patient;
@@ -100,7 +99,7 @@ class PatientController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -118,7 +117,7 @@ class PatientController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Perfil do paciente atualizado com sucesso',
-            'data' => $patient->load('user')
+            'data' => $patient->load('user'),
         ]);
     }
 
@@ -128,11 +127,11 @@ class PatientController extends Controller
     public function medicalHistory(Request $request, $id = null)
     {
         // If no ID provided, get current user's medical history
-        if (!$id) {
-            if (!$request->user()->isPatient()) {
+        if (! $id) {
+            if (! $request->user()->isPatient()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um paciente'
+                    'message' => 'Usuário não é um paciente',
                 ], 403);
             }
             $patientId = $request->user()->patient->id;
@@ -148,7 +147,7 @@ class PatientController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $medicalHistory
+            'data' => $medicalHistory,
         ]);
     }
 
@@ -158,11 +157,11 @@ class PatientController extends Controller
     public function appointments(Request $request, $id = null)
     {
         // If no ID provided, get current user's appointments
-        if (!$id) {
-            if (!$request->user()->isPatient()) {
+        if (! $id) {
+            if (! $request->user()->isPatient()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um paciente'
+                    'message' => 'Usuário não é um paciente',
                 ], 403);
             }
             $patientId = $request->user()->patient->id;
@@ -179,7 +178,7 @@ class PatientController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $appointments
+            'data' => $appointments,
         ]);
     }
 
@@ -189,11 +188,11 @@ class PatientController extends Controller
     public function statistics(Request $request, $id = null)
     {
         // If no ID provided, get current user's statistics
-        if (!$id) {
-            if (!$request->user()->isPatient()) {
+        if (! $id) {
+            if (! $request->user()->isPatient()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um paciente'
+                    'message' => 'Usuário não é um paciente',
                 ], 403);
             }
             $patientId = $request->user()->patient->id;
@@ -223,7 +222,7 @@ class PatientController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
@@ -232,10 +231,10 @@ class PatientController extends Controller
      */
     public function createMedicalHistory(Request $request, $id)
     {
-        if (!$request->user()->isDentist()) {
+        if (! $request->user()->isDentist()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Apenas dentistas podem criar histórico médico'
+                'message' => 'Apenas dentistas podem criar histórico médico',
             ], 403);
         }
 
@@ -255,7 +254,7 @@ class PatientController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -274,7 +273,7 @@ class PatientController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Histórico médico criado com sucesso',
-            'data' => $medicalHistory->load(['dentist.user', 'appointment'])
+            'data' => $medicalHistory->load(['dentist.user', 'appointment']),
         ], 201);
     }
 }

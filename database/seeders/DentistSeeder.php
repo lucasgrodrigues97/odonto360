@@ -2,9 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Dentist;
-use App\Models\Specialization;
+use Illuminate\Database\Seeder;
 
 class DentistSeeder extends Seeder
 {
@@ -44,7 +43,7 @@ class DentistSeeder extends Seeder
 
         foreach ($dentists as $dentist) {
             $createdDentist = Dentist::create($dentist);
-            
+
             // Assign specializations
             if ($dentist['user_id'] == 2) { // Dr. João Silva
                 $createdDentist->specializations()->attach([1, 3, 4]); // Odontologia Geral, Endodontia, Periodontia

@@ -16,10 +16,10 @@ class EnsureGoogleAuth
     public function handle(Request $request, Closure $next): Response
     {
         // Verificar se o usuário está autenticado via Google
-        if (!$request->user() || !$request->user()->google_id) {
+        if (! $request->user() || ! $request->user()->google_id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Acesso negado. Autenticação via Google necessária.'
+                'message' => 'Acesso negado. Autenticação via Google necessária.',
             ], 403);
         }
 

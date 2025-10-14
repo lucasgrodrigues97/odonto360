@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\Dentist;
 use App\Models\Specialization;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class DentistController extends Controller
 {
@@ -43,7 +43,7 @@ class DentistController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $dentists
+            'data' => $dentists,
         ]);
     }
 
@@ -53,11 +53,11 @@ class DentistController extends Controller
     public function show(Request $request, $id = null)
     {
         // If no ID provided, get current user's dentist profile
-        if (!$id) {
-            if (!$request->user()->isDentist()) {
+        if (! $id) {
+            if (! $request->user()->isDentist()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um dentista'
+                    'message' => 'Usuário não é um dentista',
                 ], 403);
             }
             $dentist = $request->user()->dentist;
@@ -68,7 +68,7 @@ class DentistController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $dentist
+            'data' => $dentist,
         ]);
     }
 
@@ -78,11 +78,11 @@ class DentistController extends Controller
     public function update(Request $request, $id = null)
     {
         // If no ID provided, update current user's dentist profile
-        if (!$id) {
-            if (!$request->user()->isDentist()) {
+        if (! $id) {
+            if (! $request->user()->isDentist()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um dentista'
+                    'message' => 'Usuário não é um dentista',
                 ], 403);
             }
             $dentist = $request->user()->dentist;
@@ -91,7 +91,7 @@ class DentistController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'crm' => 'sometimes|string|max:20|unique:dentists,crm,' . $dentist->id,
+            'crm' => 'sometimes|string|max:20|unique:dentists,crm,'.$dentist->id,
             'specialization' => 'nullable|string|max:255',
             'experience_years' => 'nullable|integer|min:0|max:50',
             'consultation_duration' => 'nullable|integer|min:15|max:240',
@@ -109,7 +109,7 @@ class DentistController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -137,14 +137,15 @@ class DentistController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Perfil do dentista atualizado com sucesso',
-                'data' => $dentist->load(['user', 'specializations'])
+                'data' => $dentist->load(['user', 'specializations']),
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao atualizar perfil: ' . $e->getMessage()
+                'message' => 'Erro ao atualizar perfil: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -155,11 +156,11 @@ class DentistController extends Controller
     public function appointments(Request $request, $id = null)
     {
         // If no ID provided, get current user's appointments
-        if (!$id) {
-            if (!$request->user()->isDentist()) {
+        if (! $id) {
+            if (! $request->user()->isDentist()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um dentista'
+                    'message' => 'Usuário não é um dentista',
                 ], 403);
             }
             $dentistId = $request->user()->dentist->id;
@@ -190,7 +191,7 @@ class DentistController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $appointments
+            'data' => $appointments,
         ]);
     }
 
@@ -200,11 +201,11 @@ class DentistController extends Controller
     public function patients(Request $request, $id = null)
     {
         // If no ID provided, get current user's patients
-        if (!$id) {
-            if (!$request->user()->isDentist()) {
+        if (! $id) {
+            if (! $request->user()->isDentist()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um dentista'
+                    'message' => 'Usuário não é um dentista',
                 ], 403);
             }
             $dentistId = $request->user()->dentist->id;
@@ -216,15 +217,15 @@ class DentistController extends Controller
         $patients = \App\Models\Patient::whereHas('appointments', function ($query) use ($dentistId) {
             $query->where('dentist_id', $dentistId);
         })
-        ->with(['user', 'appointments' => function ($query) use ($dentistId) {
-            $query->where('dentist_id', $dentistId);
-        }])
-        ->orderBy('created_at', 'desc')
-        ->paginate(15);
+            ->with(['user', 'appointments' => function ($query) use ($dentistId) {
+                $query->where('dentist_id', $dentistId);
+            }])
+            ->orderBy('created_at', 'desc')
+            ->paginate(15);
 
         return response()->json([
             'success' => true,
-            'data' => $patients
+            'data' => $patients,
         ]);
     }
 
@@ -234,11 +235,11 @@ class DentistController extends Controller
     public function schedule(Request $request, $id = null)
     {
         // If no ID provided, get current user's schedule
-        if (!$id) {
-            if (!$request->user()->isDentist()) {
+        if (! $id) {
+            if (! $request->user()->isDentist()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um dentista'
+                    'message' => 'Usuário não é um dentista',
                 ], 403);
             }
             $dentistId = $request->user()->dentist->id;
@@ -254,7 +255,7 @@ class DentistController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $schedule
+            'data' => $schedule,
         ]);
     }
 
@@ -264,11 +265,11 @@ class DentistController extends Controller
     public function updateSchedule(Request $request, $id = null)
     {
         // If no ID provided, update current user's schedule
-        if (!$id) {
-            if (!$request->user()->isDentist()) {
+        if (! $id) {
+            if (! $request->user()->isDentist()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um dentista'
+                    'message' => 'Usuário não é um dentista',
                 ], 403);
             }
             $dentistId = $request->user()->dentist->id;
@@ -290,7 +291,7 @@ class DentistController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -316,14 +317,15 @@ class DentistController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Agenda atualizada com sucesso',
-                'data' => \App\Models\DentistSchedule::where('dentist_id', $dentistId)->get()
+                'data' => \App\Models\DentistSchedule::where('dentist_id', $dentistId)->get(),
             ]);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao atualizar agenda: ' . $e->getMessage()
+                'message' => 'Erro ao atualizar agenda: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -334,11 +336,11 @@ class DentistController extends Controller
     public function statistics(Request $request, $id = null)
     {
         // If no ID provided, get current user's statistics
-        if (!$id) {
-            if (!$request->user()->isDentist()) {
+        if (! $id) {
+            if (! $request->user()->isDentist()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Usuário não é um dentista'
+                    'message' => 'Usuário não é um dentista',
                 ], 403);
             }
             $dentistId = $request->user()->dentist->id;
@@ -369,7 +371,7 @@ class DentistController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $stats
+            'data' => $stats,
         ]);
     }
 
@@ -379,11 +381,11 @@ class DentistController extends Controller
     public function getTodayAppointments(Request $request)
     {
         $user = $request->user();
-        
-        if (!$user->isDentist()) {
+
+        if (! $user->isDentist()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Usuário não é um dentista'
+                'message' => 'Usuário não é um dentista',
             ], 403);
         }
 
@@ -402,16 +404,16 @@ class DentistController extends Controller
                 return [
                     'id' => $appointment->id,
                     'patient_name' => $appointment->patient->user->name ?? 'N/A',
-                    'time' => $appointment->appointment_time ? 
-                        (is_string($appointment->appointment_time) ? 
-                            substr($appointment->appointment_time, 0, 5) : 
-                            $appointment->appointment_time->format('H:i')) : 
+                    'time' => $appointment->appointment_time ?
+                        (is_string($appointment->appointment_time) ?
+                            substr($appointment->appointment_time, 0, 5) :
+                            $appointment->appointment_time->format('H:i')) :
                         '-',
                     'status' => $appointment->status,
                     'procedures' => $appointment->procedures->pluck('name')->toArray(),
                     'reason' => $appointment->reason,
                 ];
-            })
+            }),
         ]);
     }
 
@@ -421,11 +423,11 @@ class DentistController extends Controller
     public function getRecentPatients(Request $request)
     {
         $user = $request->user();
-        
-        if (!$user->isDentist()) {
+
+        if (! $user->isDentist()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Usuário não é um dentista'
+                'message' => 'Usuário não é um dentista',
             ], 403);
         }
 
@@ -434,28 +436,29 @@ class DentistController extends Controller
         $patients = \App\Models\Patient::whereHas('appointments', function ($query) use ($dentistId) {
             $query->where('dentist_id', $dentistId);
         })
-        ->with(['user', 'appointments' => function ($query) use ($dentistId) {
-            $query->where('dentist_id', $dentistId)
-                  ->orderBy('appointment_date', 'desc');
-        }])
-        ->get()
-        ->map(function ($patient) {
-            $lastAppointment = $patient->appointments->first();
-            return [
-                'id' => $patient->id,
-                'name' => $patient->user->name,
-                'last_appointment' => $lastAppointment ? 
-                    $lastAppointment->appointment_date : null,
-                'appointments_count' => $patient->appointments->count()
-            ];
-        })
-        ->sortByDesc('last_appointment')
-        ->take(5)
-        ->values();
+            ->with(['user', 'appointments' => function ($query) use ($dentistId) {
+                $query->where('dentist_id', $dentistId)
+                    ->orderBy('appointment_date', 'desc');
+            }])
+            ->get()
+            ->map(function ($patient) {
+                $lastAppointment = $patient->appointments->first();
+
+                return [
+                    'id' => $patient->id,
+                    'name' => $patient->user->name,
+                    'last_appointment' => $lastAppointment ?
+                        $lastAppointment->appointment_date : null,
+                    'appointments_count' => $patient->appointments->count(),
+                ];
+            })
+            ->sortByDesc('last_appointment')
+            ->take(5)
+            ->values();
 
         return response()->json([
             'success' => true,
-            'data' => $patients
+            'data' => $patients,
         ]);
     }
 
@@ -465,11 +468,11 @@ class DentistController extends Controller
     public function getAppointmentsStatusChart(Request $request)
     {
         $user = $request->user();
-        
-        if (!$user->isDentist()) {
+
+        if (! $user->isDentist()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Usuário não é um dentista'
+                'message' => 'Usuário não é um dentista',
             ], 403);
         }
 
@@ -493,8 +496,8 @@ class DentistController extends Controller
             'success' => true,
             'data' => [
                 'labels' => $labels,
-                'data' => $data
-            ]
+                'data' => $data,
+            ],
         ]);
     }
 
@@ -504,11 +507,11 @@ class DentistController extends Controller
     public function getMonthlyRevenueChart(Request $request)
     {
         $user = $request->user();
-        
-        if (!$user->isDentist()) {
+
+        if (! $user->isDentist()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Usuário não é um dentista'
+                'message' => 'Usuário não é um dentista',
             ], 403);
         }
 
@@ -517,17 +520,17 @@ class DentistController extends Controller
         // Get last 6 months revenue
         $revenueData = [];
         $labels = [];
-        
+
         for ($i = 5; $i >= 0; $i--) {
             $date = now()->subMonths($i);
             $monthStart = $date->copy()->startOfMonth();
             $monthEnd = $date->copy()->endOfMonth();
-            
+
             $revenue = \App\Models\Appointment::where('dentist_id', $dentistId)
                 ->where('status', 'completed')
                 ->whereBetween('appointment_date', [$monthStart, $monthEnd])
                 ->sum('cost');
-            
+
             $revenueData[] = $revenue;
             $labels[] = $date->format('M/Y');
         }
@@ -536,8 +539,8 @@ class DentistController extends Controller
             'success' => true,
             'data' => [
                 'labels' => $labels,
-                'data' => $revenueData
-            ]
+                'data' => $revenueData,
+            ],
         ]);
     }
 }

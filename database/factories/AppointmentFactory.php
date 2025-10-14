@@ -21,7 +21,7 @@ class AppointmentFactory extends Factory
     {
         $appointmentDate = fake()->dateTimeBetween('now', '+3 months');
         $appointmentTime = fake()->time('H:i', '17:00');
-        
+
         return [
             'patient_id' => Patient::factory(),
             'dentist_id' => Dentist::factory(),

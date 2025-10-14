@@ -50,18 +50,26 @@ class Appointment extends Model
      * The possible status values for appointments.
      */
     const STATUS_SCHEDULED = 'scheduled';
+
     const STATUS_CONFIRMED = 'confirmed';
+
     const STATUS_IN_PROGRESS = 'in_progress';
+
     const STATUS_COMPLETED = 'completed';
+
     const STATUS_CANCELLED = 'cancelled';
+
     const STATUS_NO_SHOW = 'no_show';
 
     /**
      * The possible payment status values.
      */
     const PAYMENT_PENDING = 'pending';
+
     const PAYMENT_PAID = 'paid';
+
     const PAYMENT_PARTIAL = 'partial';
+
     const PAYMENT_REFUNDED = 'refunded';
 
     /**
@@ -144,7 +152,7 @@ class Appointment extends Model
      */
     public function getFormattedDateTimeAttribute()
     {
-        return $this->appointment_date->format('d/m/Y') . ' às ' . $this->appointment_time->format('H:i');
+        return $this->appointment_date->format('d/m/Y').' às '.$this->appointment_time->format('H:i');
     }
 
     /**

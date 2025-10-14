@@ -27,11 +27,11 @@ class OAuthController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->user();
-            
+
             // Verificar se o usuário já existe
             $user = User::where('email', $googleUser->email)->first();
-            
-            if (!$user) {
+
+            if (! $user) {
                 // Criar novo usuário
                 $user = User::create([
                     'name' => $googleUser->name,
@@ -41,13 +41,13 @@ class OAuthController extends Controller
                     'password' => Hash::make(uniqid()), // Senha aleatória
                     'email_verified_at' => now(),
                 ]);
-                
+
                 // Atribuir role de paciente por padrão
                 $user->assignRole('patient');
-                
+
                 // Criar perfil de paciente
                 $user->patient()->create([
-                    'patient_code' => 'PAT' . str_pad($user->id, 3, '0', STR_PAD_LEFT),
+                    'patient_code' => 'PAT'.str_pad($user->id, 3, '0', STR_PAD_LEFT),
                     'is_active' => true,
                 ]);
             } else {
@@ -60,7 +60,7 @@ class OAuthController extends Controller
 
             // Fazer login do usuário
             Auth::login($user);
-            
+
             // Criar token de API
             $token = $user->createToken('google-auth-token')->plainTextToken;
 
@@ -71,13 +71,13 @@ class OAuthController extends Controller
                     'user' => $user->load(['patient', 'dentist', 'roles']),
                     'token' => $token,
                     'token_type' => 'Bearer',
-                ]
+                ],
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao fazer login com Google: ' . $e->getMessage()
+                'message' => 'Erro ao fazer login com Google: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -95,8 +95,8 @@ class OAuthController extends Controller
         return response()->json([
             'success' => true,
             'data' => [
-                'auth_url' => $url
-            ]
+                'auth_url' => $url,
+            ],
         ]);
     }
 
@@ -107,23 +107,23 @@ class OAuthController extends Controller
     {
         try {
             $user = $request->user();
-            
+
             if ($user->google_id) {
                 // Revogar token do Google (se necessário)
                 // Implementar revogação do token do Google
-                
+
                 $user->update(['google_id' => null]);
             }
 
             return response()->json([
                 'success' => true,
-                'message' => 'Token do Google revogado com sucesso'
+                'message' => 'Token do Google revogado com sucesso',
             ]);
 
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao revogar token do Google: ' . $e->getMessage()
+                'message' => 'Erro ao revogar token do Google: '.$e->getMessage(),
             ], 500);
         }
     }

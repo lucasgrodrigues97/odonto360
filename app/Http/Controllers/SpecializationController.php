@@ -29,7 +29,7 @@ class SpecializationController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $specializations
+            'data' => $specializations,
         ]);
     }
 
@@ -42,7 +42,7 @@ class SpecializationController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $specialization
+            'data' => $specialization,
         ]);
     }
 
@@ -61,7 +61,7 @@ class SpecializationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -70,7 +70,7 @@ class SpecializationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Especialização criada com sucesso',
-            'data' => $specialization
+            'data' => $specialization,
         ], 201);
     }
 
@@ -82,7 +82,7 @@ class SpecializationController extends Controller
         $specialization = Specialization::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
-            'name' => 'sometimes|string|max:255|unique:specializations,name,' . $id,
+            'name' => 'sometimes|string|max:255|unique:specializations,name,'.$id,
             'description' => 'nullable|string|max:1000',
             'is_active' => 'boolean',
         ]);
@@ -91,7 +91,7 @@ class SpecializationController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -100,7 +100,7 @@ class SpecializationController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Especialização atualizada com sucesso',
-            'data' => $specialization
+            'data' => $specialization,
         ]);
     }
 
@@ -115,7 +115,7 @@ class SpecializationController extends Controller
         if ($specialization->dentists()->count() > 0) {
             return response()->json([
                 'success' => false,
-                'message' => 'Não é possível excluir especialização que está sendo usada por dentistas'
+                'message' => 'Não é possível excluir especialização que está sendo usada por dentistas',
             ], 422);
         }
 
@@ -123,7 +123,7 @@ class SpecializationController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Especialização excluída com sucesso'
+            'message' => 'Especialização excluída com sucesso',
         ]);
     }
 
@@ -138,7 +138,7 @@ class SpecializationController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $specializations
+            'data' => $specializations,
         ]);
     }
 }

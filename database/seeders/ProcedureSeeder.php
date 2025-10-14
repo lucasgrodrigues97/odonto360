@@ -2,8 +2,8 @@
 
 namespace Database\Seeders;
 
-use Illuminate\Database\Seeder;
 use App\Models\Procedure;
+use Illuminate\Database\Seeder;
 
 class ProcedureSeeder extends Seeder
 {

@@ -8,8 +8,8 @@ use App\Models\Patient;
 use App\Models\Procedure;
 use App\Services\AIService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class AppointmentController extends Controller
 {
@@ -61,7 +61,7 @@ class AppointmentController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $appointments
+            'data' => $appointments,
         ]);
     }
 
@@ -80,7 +80,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -97,7 +97,7 @@ class AppointmentController extends Controller
                 'dentist' => $dentist->load('user'),
                 'available_slots' => $availableSlots,
                 'duration' => $duration,
-            ]
+            ],
         ]);
     }
 
@@ -117,7 +117,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -133,7 +133,7 @@ class AppointmentController extends Controller
                 'suggestions' => $suggestions,
                 'dentist' => $dentist->load('user'),
                 'duration' => $duration,
-            ]
+            ],
         ]);
     }
 
@@ -159,7 +159,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -169,24 +169,24 @@ class AppointmentController extends Controller
         $duration = $request->duration ?? 60;
 
         // Check if dentist is available
-        if (!$dentist->isAvailable($date, $time)) {
+        if (! $dentist->isAvailable($date, $time)) {
             return response()->json([
                 'success' => false,
-                'message' => 'Horário não disponível para este dentista'
+                'message' => 'Horário não disponível para este dentista',
             ], 422);
         }
 
         DB::beginTransaction();
         try {
             // Get patient ID
-            $patientId = $request->user()->isPatient() 
-                ? $request->user()->patient->id 
+            $patientId = $request->user()->isPatient()
+                ? $request->user()->patient->id
                 : $request->patient_id;
 
-            if (!$patientId) {
+            if (! $patientId) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Paciente não encontrado'
+                    'message' => 'Paciente não encontrado',
                 ], 422);
             }
 
@@ -232,14 +232,15 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Agendamento criado com sucesso',
-                'data' => $appointment->load(['patient.user', 'dentist.user', 'procedures'])
+                'data' => $appointment->load(['patient.user', 'dentist.user', 'procedures']),
             ], 201);
 
         } catch (\Exception $e) {
             DB::rollBack();
+
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao criar agendamento: ' . $e->getMessage()
+                'message' => 'Erro ao criar agendamento: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -261,7 +262,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -275,7 +276,7 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Status do agendamento atualizado com sucesso',
-            'data' => $appointment->load(['patient.user', 'dentist.user', 'procedures'])
+            'data' => $appointment->load(['patient.user', 'dentist.user', 'procedures']),
         ]);
     }
 
@@ -290,14 +291,14 @@ class AppointmentController extends Controller
         if ($request->user()->isPatient() && $appointment->patient_id !== $request->user()->patient->id) {
             return response()->json([
                 'success' => false,
-                'message' => 'Você não pode cancelar este agendamento'
+                'message' => 'Você não pode cancelar este agendamento',
             ], 403);
         }
 
-        if (!$appointment->canBeCancelled()) {
+        if (! $appointment->canBeCancelled()) {
             return response()->json([
                 'success' => false,
-                'message' => 'Este agendamento não pode ser cancelado'
+                'message' => 'Este agendamento não pode ser cancelado',
             ], 422);
         }
 
@@ -309,7 +310,7 @@ class AppointmentController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -322,7 +323,7 @@ class AppointmentController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Agendamento cancelado com sucesso',
-            'data' => $appointment->load(['patient.user', 'dentist.user', 'procedures'])
+            'data' => $appointment->load(['patient.user', 'dentist.user', 'procedures']),
         ]);
     }
 
@@ -332,29 +333,29 @@ class AppointmentController extends Controller
     private function getAvailableTimeSlots($dentist, $date, $duration)
     {
         $dayOfWeek = date('N', strtotime($date));
-        
+
         // Check if dentist works on this day
-        if (!in_array($dayOfWeek, $dentist->available_days ?? [])) {
+        if (! in_array($dayOfWeek, $dentist->available_days ?? [])) {
             return [];
         }
 
         $startTime = $dentist->available_hours_start;
         $endTime = $dentist->available_hours_end;
-        
+
         $slots = [];
         $currentTime = strtotime($startTime);
         $endTimestamp = strtotime($endTime);
-        
+
         while ($currentTime < $endTimestamp) {
             $timeSlot = date('H:i', $currentTime);
-            
+
             // Check if this time slot is available
-            $isAvailable = !Appointment::where('dentist_id', $dentist->id)
+            $isAvailable = ! Appointment::where('dentist_id', $dentist->id)
                 ->where('appointment_date', $date)
                 ->where('appointment_time', $timeSlot)
                 ->whereIn('status', [Appointment::STATUS_SCHEDULED, Appointment::STATUS_CONFIRMED])
                 ->exists();
-            
+
             if ($isAvailable) {
                 $slots[] = [
                     'time' => $timeSlot,
@@ -362,10 +363,10 @@ class AppointmentController extends Controller
                     'available' => true,
                 ];
             }
-            
+
             $currentTime += $duration * 60; // Add duration in minutes
         }
-        
+
         return $slots;
     }
 
@@ -375,11 +376,11 @@ class AppointmentController extends Controller
     public function getAIAnalysis($dentistId, Request $request)
     {
         $request->validate([
-            'days' => 'integer|min:7|max:365'
+            'days' => 'integer|min:7|max:365',
         ]);
 
-        $aiService = new AIService();
-        
+        $aiService = new AIService;
+
         return $aiService->analyzeAppointmentPatterns(
             $dentistId,
             $request->days ?? 30
@@ -393,11 +394,11 @@ class AppointmentController extends Controller
     {
         $request->validate([
             'date' => 'required|date|after_or_equal:today',
-            'duration' => 'integer|min:30|max:240'
+            'duration' => 'integer|min:30|max:240',
         ]);
 
-        $aiService = new AIService();
-        
+        $aiService = new AIService;
+
         return $aiService->predictOptimalTimes(
             $dentistId,
             $request->date,

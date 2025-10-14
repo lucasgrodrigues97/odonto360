@@ -1,14 +1,13 @@
 <?php
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\OAuthController;
 use App\Http\Controllers\AppointmentController;
-use App\Http\Controllers\PatientController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DentistController;
-use App\Http\Controllers\SpecializationController;
+use App\Http\Controllers\OAuthController;
+use App\Http\Controllers\PatientController;
 use App\Http\Controllers\ProcedureController;
+use App\Http\Controllers\SpecializationController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
@@ -42,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
     Route::put('/profile', [AuthController::class, 'updateProfile']);
-    
+
     // OAuth protected routes
     Route::post('/auth/google/revoke', [OAuthController::class, 'revokeGoogleToken']);
 
@@ -86,7 +85,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::put('/dentists/{id}/schedule', [DentistController::class, 'updateSchedule'])->middleware('role:admin');
     Route::get('/dentists/profile/statistics', [DentistController::class, 'statistics'])->middleware('role:dentist');
     Route::get('/dentists/{id}/statistics', [DentistController::class, 'statistics'])->middleware('role:admin');
-    
+
     // Dentist Dashboard specific routes
     Route::get('/dentist/appointments/today', [DentistController::class, 'getTodayAppointments'])->middleware('role:dentist');
     Route::get('/dentist/patients/recent', [DentistController::class, 'getRecentPatients'])->middleware('role:dentist');
@@ -108,6 +107,6 @@ Route::get('/health', function () {
         'status' => 'ok',
         'timestamp' => now()->toISOString(),
         'service' => 'Odonto360 API',
-        'version' => '1.0.0'
+        'version' => '1.0.0',
     ]);
 });

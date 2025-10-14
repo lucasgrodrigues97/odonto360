@@ -43,21 +43,22 @@ Route::get('/debug/user', function () {
             $hasRoleAdmin = $user->hasRole('admin');
         } catch (\Exception $e) {
             return response()->json([
-                'error' => 'Erro ao verificar roles: ' . $e->getMessage(),
+                'error' => 'Erro ao verificar roles: '.$e->getMessage(),
                 'user' => $user->name,
-                'email' => $user->email
+                'email' => $user->email,
             ]);
         }
-        
+
         return response()->json([
             'user' => $user->name,
             'email' => $user->email,
             'roles' => $roles,
             'isAdmin' => $isAdmin,
             'hasRole_admin' => $hasRoleAdmin,
-            'roles_count' => $roles->count()
+            'roles_count' => $roles->count(),
         ]);
     }
+
     return response()->json(['error' => 'Not authenticated']);
 });
 
@@ -66,15 +67,15 @@ Route::get('/debug/permissions', function () {
     try {
         $roles = \Spatie\Permission\Models\Role::all();
         $permissions = \Spatie\Permission\Models\Permission::all();
-        
+
         return response()->json([
             'roles' => $roles->pluck('name'),
             'permissions' => $permissions->pluck('name'),
             'roles_count' => $roles->count(),
-            'permissions_count' => $permissions->count()
+            'permissions_count' => $permissions->count(),
         ]);
     } catch (\Exception $e) {
-        return response()->json(['error' => 'Erro ao verificar permissões: ' . $e->getMessage()]);
+        return response()->json(['error' => 'Erro ao verificar permissões: '.$e->getMessage()]);
     }
 });
 
@@ -108,10 +109,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-    
+
     Route::get('/dashboard/stats', [App\Http\Controllers\DashboardController::class, 'getStats'])->name('dashboard.stats');
     Route::get('/dashboard/recent-appointments', [App\Http\Controllers\DashboardController::class, 'getRecentAppointments'])->name('dashboard.recent-appointments');
-    
+
     Route::get('/profile', function () {
         return view('profile');
     })->name('profile');
@@ -125,7 +126,7 @@ Route::get('/test-dashboard', function () {
         'user' => auth()->user() ? auth()->user()->email : 'não autenticado',
         'appointments_count' => \App\Models\Appointment::count(),
         'patients_count' => \App\Models\Patient::count(),
-        'dentists_count' => \App\Models\Dentist::count()
+        'dentists_count' => \App\Models\Dentist::count(),
     ]);
 });
 
@@ -134,11 +135,11 @@ Route::middleware(['auth:sanctum', 'role:patient'])->group(function () {
     Route::get('/patient/appointments', function () {
         return view('patient.appointments');
     })->name('patient.appointments');
-    
+
     Route::get('/patient/medical-history', function () {
         return view('patient.medical-history');
     })->name('patient.medical-history');
-    
+
     Route::get('/patient/schedule', function () {
         return view('patient.schedule');
     })->name('patient.schedule');
@@ -149,15 +150,15 @@ Route::middleware(['auth:sanctum', 'role:dentist'])->group(function () {
     Route::get('/dentist/appointments', function () {
         return view('dentist.appointments');
     })->name('dentist.appointments');
-    
+
     Route::get('/dentist/patients', function () {
         return view('dentist.patients');
     })->name('dentist.patients');
-    
+
     Route::get('/dentist/schedule', function () {
         return view('dentist.schedule');
     })->name('dentist.schedule');
-    
+
     Route::get('/dentist/statistics', function () {
         return view('dentist.statistics');
     })->name('dentist.statistics');
@@ -168,41 +169,41 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/admin/dashboard', function () {
         return view('admin.dashboard');
     })->name('admin.dashboard');
-    
+
     Route::get('/admin/patients', function () {
         try {
             return view('admin.patients');
         } catch (\Exception $e) {
-            return response('Erro ao carregar view: ' . $e->getMessage(), 500);
+            return response('Erro ao carregar view: '.$e->getMessage(), 500);
         }
     })->name('admin.patients');
-    
+
     Route::get('/admin/dentists', function () {
         return view('admin.dentists');
     })->name('admin.dentists');
-    
+
     Route::get('/admin/appointments', function () {
         return view('admin.appointments');
     })->name('admin.appointments');
-    
+
     Route::get('/admin/procedures', function () {
         return view('admin.procedures');
     })->name('admin.procedures');
-    
+
     Route::get('/admin/specializations', function () {
         return view('admin.specializations');
     })->name('admin.specializations');
-    
+
     Route::get('/admin/reports', function () {
         return view('admin.reports');
     })->name('admin.reports');
-    
-        // API routes for admin data
-        Route::get('/admin/patients/data', [App\Http\Controllers\AdminController::class, 'getPatientsData'])->name('admin.patients.data');
-        Route::get('/admin/dentists/data', [App\Http\Controllers\AdminController::class, 'getDentistsData'])->name('admin.dentists.data');
-        Route::get('/admin/procedures/data', [App\Http\Controllers\AdminController::class, 'getProceduresData'])->name('admin.procedures.data');
-        Route::get('/admin/reports/data', [App\Http\Controllers\AdminController::class, 'getReportsData'])->name('admin.reports.data');
-        Route::get('/admin/appointments/data', [App\Http\Controllers\AdminController::class, 'getAppointmentsData'])->name('admin.appointments.data');
+
+    // API routes for admin data
+    Route::get('/admin/patients/data', [App\Http\Controllers\AdminController::class, 'getPatientsData'])->name('admin.patients.data');
+    Route::get('/admin/dentists/data', [App\Http\Controllers\AdminController::class, 'getDentistsData'])->name('admin.dentists.data');
+    Route::get('/admin/procedures/data', [App\Http\Controllers\AdminController::class, 'getProceduresData'])->name('admin.procedures.data');
+    Route::get('/admin/reports/data', [App\Http\Controllers\AdminController::class, 'getReportsData'])->name('admin.reports.data');
+    Route::get('/admin/appointments/data', [App\Http\Controllers\AdminController::class, 'getAppointmentsData'])->name('admin.appointments.data');
 });
 
 // Patient specific routes
@@ -210,11 +211,11 @@ Route::middleware(['auth:sanctum', 'role:patient'])->group(function () {
     Route::get('/patient/appointments', function () {
         return view('patient.appointments');
     })->name('patient.appointments');
-    
+
     Route::get('/patient/medical-history', function () {
         return view('patient.medical-history');
     })->name('patient.medical-history');
-    
+
     Route::get('/patient/schedule', function () {
         return view('patient.schedule');
     })->name('patient.schedule');
@@ -225,19 +226,19 @@ Route::middleware(['auth', 'role:dentist'])->group(function () {
     Route::get('/dentist/appointments', function () {
         return view('dentist.appointments');
     })->name('dentist.appointments');
-    
+
     Route::get('/dentist/patients', function () {
         return view('dentist.patients');
     })->name('dentist.patients');
-    
+
     Route::get('/dentist/schedule', function () {
         return view('dentist.schedule');
     })->name('dentist.schedule');
-    
+
     Route::get('/dentist/statistics', function () {
         return view('dentist.statistics');
     })->name('dentist.statistics');
-    
+
 });
 
 // Dentist Dashboard API routes (web) - temporariamente sem middleware para teste

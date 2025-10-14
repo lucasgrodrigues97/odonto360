@@ -31,7 +31,7 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
@@ -50,7 +50,7 @@ class AuthController extends Controller
         // Create patient or dentist record
         if ($request->role === 'patient') {
             $user->patient()->create([
-                'patient_code' => 'PAT' . str_pad($user->id, 3, '0', STR_PAD_LEFT),
+                'patient_code' => 'PAT'.str_pad($user->id, 3, '0', STR_PAD_LEFT),
                 'is_active' => true,
             ]);
         } elseif ($request->role === 'dentist') {
@@ -76,7 +76,7 @@ class AuthController extends Controller
                 'user' => $user->load(['patient', 'dentist']),
                 'token' => $token,
                 'token_type' => 'Bearer',
-            ]
+            ],
         ], 201);
     }
 
@@ -94,14 +94,14 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
-        if (!Auth::attempt($request->only('email', 'password'))) {
+        if (! Auth::attempt($request->only('email', 'password'))) {
             return response()->json([
                 'success' => false,
-                'message' => 'Credenciais inválidas'
+                'message' => 'Credenciais inválidas',
             ], 401);
         }
 
@@ -115,7 +115,7 @@ class AuthController extends Controller
                 'user' => $user->load(['patient', 'dentist', 'roles']),
                 'token' => $token,
                 'token_type' => 'Bearer',
-            ]
+            ],
         ]);
     }
 
@@ -129,7 +129,7 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        if (!Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
+        if (! Auth::attempt($request->only('email', 'password'), $request->boolean('remember'))) {
             return back()->withErrors([
                 'email' => 'Credenciais inválidas.',
             ])->onlyInput('email');
@@ -138,7 +138,7 @@ class AuthController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        
+
         // Redirect based on user role
         if ($user->hasRole('admin')) {
             return redirect()->intended('/admin/dashboard');
@@ -207,7 +207,7 @@ class AuthController extends Controller
         // Verificar se o token tem método delete (não é TransientToken)
         if ($request->user() && $request->user()->currentAccessToken()) {
             $token = $request->user()->currentAccessToken();
-            
+
             if (method_exists($token, 'delete')) {
                 $token->delete();
             }
@@ -215,7 +215,7 @@ class AuthController extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Logout realizado com sucesso'
+            'message' => 'Logout realizado com sucesso',
         ]);
     }
 
@@ -227,7 +227,7 @@ class AuthController extends Controller
         try {
             // Fazer logout da sessão web
             auth()->logout();
-            
+
             // Invalidar sessão
             $request->session()->invalidate();
             $request->session()->regenerateToken();
@@ -246,7 +246,7 @@ class AuthController extends Controller
     {
         return response()->json([
             'success' => true,
-            'data' => $request->user()->load(['patient', 'dentist', 'roles'])
+            'data' => $request->user()->load(['patient', 'dentist', 'roles']),
         ]);
     }
 
@@ -265,10 +265,10 @@ class AuthController extends Controller
     {
         try {
             $googleUser = Socialite::driver('google')->user();
-            
+
             $user = User::where('email', $googleUser->email)->first();
-            
-            if (!$user) {
+
+            if (! $user) {
                 $user = User::create([
                     'name' => $googleUser->name,
                     'email' => $googleUser->email,
@@ -276,13 +276,13 @@ class AuthController extends Controller
                     'avatar' => $googleUser->avatar,
                     'password' => Hash::make(uniqid()),
                 ]);
-                
+
                 // Assign patient role by default for OAuth users
                 $user->assignRole('patient');
-                
+
                 // Create patient record
                 $user->patient()->create([
-                    'patient_code' => 'PAT' . str_pad($user->id, 3, '0', STR_PAD_LEFT),
+                    'patient_code' => 'PAT'.str_pad($user->id, 3, '0', STR_PAD_LEFT),
                     'is_active' => true,
                 ]);
             }
@@ -296,12 +296,12 @@ class AuthController extends Controller
                     'user' => $user->load(['patient', 'dentist', 'roles']),
                     'token' => $token,
                     'token_type' => 'Bearer',
-                ]
+                ],
             ]);
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao fazer login com Google: ' . $e->getMessage()
+                'message' => 'Erro ao fazer login com Google: '.$e->getMessage(),
             ], 500);
         }
     }
@@ -312,7 +312,7 @@ class AuthController extends Controller
     public function updateProfile(Request $request)
     {
         $user = $request->user();
-        
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'phone' => 'sometimes|string|max:20',
@@ -328,18 +328,18 @@ class AuthController extends Controller
             return response()->json([
                 'success' => false,
                 'message' => 'Dados inválidos',
-                'errors' => $validator->errors()
+                'errors' => $validator->errors(),
             ], 422);
         }
 
         $user->update($request->only([
-            'name', 'phone', 'birth_date', 'gender', 'address', 'city', 'state', 'zip_code'
+            'name', 'phone', 'birth_date', 'gender', 'address', 'city', 'state', 'zip_code',
         ]));
 
         return response()->json([
             'success' => true,
             'message' => 'Perfil atualizado com sucesso',
-            'data' => $user->load(['patient', 'dentist', 'roles'])
+            'data' => $user->load(['patient', 'dentist', 'roles']),
         ]);
     }
 }

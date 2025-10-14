@@ -155,7 +155,6 @@ composer.phar
 composer.lock
 
 # NPM
-package-lock.json
 yarn.lock
 
 # Build artifacts
