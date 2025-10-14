@@ -56,7 +56,7 @@ COPY . .
 COPY --from=node-build /app/node_modules ./node_modules
 
 # Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
+RUN chown -R www:www /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
@@ -82,7 +82,7 @@ COPY docker/default.conf /etc/nginx/conf.d/default.conf
 COPY --from=php-base /var/www/html /var/www/html
 
 # Create nginx user and set permissions
-RUN adduser -D -S -G www-data nginx \
+RUN adduser -D -S -G www nginx \
     && chown -R nginx:www-data /var/www/html \
     && chmod -R 755 /var/www/html
 
@@ -147,7 +147,7 @@ RUN node --version && npm --version || echo "Node.js not available, skipping..."
 RUN npm ci --only=production && npm run build || echo "Node.js build failed, continuing..."
 
 # Set proper permissions
-RUN chown -R www-data:www-data /var/www/html \
+RUN chown -R www:www /var/www/html \
     && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache
 
