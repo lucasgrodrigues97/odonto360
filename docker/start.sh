@@ -142,6 +142,13 @@ if [ -n "$MYSQL_PUBLIC_URL" ]; then
     # Test database connection
     echo "Testing database connection..."
     timeout 10 sh -c "until nc -z $DB_HOST $DB_PORT; do sleep 1; done" && echo "Database connection successful" || echo "Database connection failed"
+    
+    # Run migrations and seeders
+    echo "Running database migrations..."
+    php artisan migrate --force || echo "Migrations failed"
+    
+    echo "Running database seeders..."
+    php artisan db:seed --force || echo "Seeders failed"
 fi
 
 # Check .env file
