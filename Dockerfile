@@ -26,19 +26,16 @@ RUN apk add --no-cache \
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
-# Install core extensions first
-RUN docker-php-ext-install -j$(nproc) \
-    pdo_mysql \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath \
-    zip \
-    intl \
-    opcache
+# Install essential PHP extensions only
+RUN docker-php-ext-install pdo_mysql mbstring zip opcache || echo "Some extensions failed, continuing..."
 
-# Install GD extension separately (with error handling)
-RUN docker-php-ext-install -j$(nproc) gd || echo "GD extension installation failed, continuing..."
+# Try to install optional extensions
+RUN docker-php-ext-install exif || echo "exif failed, continuing..."
+RUN docker-php-ext-install bcmath || echo "bcmath failed, continuing..."
+RUN docker-php-ext-install intl || echo "intl failed, continuing..."
+
+# Try GD extension (optional for basic functionality)
+RUN docker-php-ext-install gd || echo "GD extension failed, continuing..."
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -119,19 +116,16 @@ RUN apk add --no-cache \
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
-# Install core extensions first
-RUN docker-php-ext-install -j$(nproc) \
-    pdo_mysql \
-    mbstring \
-    exif \
-    pcntl \
-    bcmath \
-    zip \
-    intl \
-    opcache
+# Install essential PHP extensions only
+RUN docker-php-ext-install pdo_mysql mbstring zip opcache || echo "Some extensions failed, continuing..."
 
-# Install GD extension separately (with error handling)
-RUN docker-php-ext-install -j$(nproc) gd || echo "GD extension installation failed, continuing..."
+# Try to install optional extensions
+RUN docker-php-ext-install exif || echo "exif failed, continuing..."
+RUN docker-php-ext-install bcmath || echo "bcmath failed, continuing..."
+RUN docker-php-ext-install intl || echo "intl failed, continuing..."
+
+# Try GD extension (optional for basic functionality)
+RUN docker-php-ext-install gd || echo "GD extension failed, continuing..."
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
