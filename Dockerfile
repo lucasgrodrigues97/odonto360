@@ -55,8 +55,9 @@ COPY . .
 # Copy node build artifacts
 COPY --from=node-build /app/node_modules ./node_modules
 
-# Set proper permissions
-RUN chmod -R 755 /var/www/html/storage \
+# Create necessary directories and set proper permissions
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache \
     && (chown -R www:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
@@ -146,8 +147,9 @@ RUN node --version && npm --version || echo "Node.js not available, skipping..."
 # Install Node.js dependencies and build assets (with error handling)
 RUN npm ci --only=production && npm run build || echo "Node.js build failed, continuing..."
 
-# Set proper permissions
-RUN chmod -R 755 /var/www/html/storage \
+# Create necessary directories and set proper permissions
+RUN mkdir -p /var/www/html/storage /var/www/html/bootstrap/cache \
+    && chmod -R 755 /var/www/html/storage \
     && chmod -R 755 /var/www/html/bootstrap/cache \
     && (chown -R www:www /var/www/html || chown -R 1000:1000 /var/www/html || true)
 
