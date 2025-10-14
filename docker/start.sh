@@ -97,8 +97,19 @@ EOF
 echo "Testing PHP-FPM connection..."
 timeout 10 sh -c 'until nc -z 127.0.0.1 9000; do sleep 1; done' || echo "PHP-FPM not ready, continuing..."
 
-# Create public directory if it doesn't exist
+# Create necessary directories
 mkdir -p /var/www/html/public
+mkdir -p /var/www/html/storage/logs
+mkdir -p /var/www/html/storage/framework/cache
+mkdir -p /var/www/html/storage/framework/sessions
+mkdir -p /var/www/html/storage/framework/views
+mkdir -p /var/www/html/bootstrap/cache
+
+# Fix permissions for Laravel
+chmod -R 775 /var/www/html/storage
+chmod -R 775 /var/www/html/bootstrap/cache
+chown -R www-data:www-data /var/www/html/storage
+chown -R www-data:www-data /var/www/html/bootstrap/cache
 
 # Check if Laravel index.php exists
 if [ ! -f /var/www/html/public/index.php ]; then
