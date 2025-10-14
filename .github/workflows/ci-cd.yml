@@ -212,14 +212,22 @@ jobs:
 
     - name: Create deployment package
       run: |
-        tar -czf odonto360-$(date +%Y%m%d-%H%M%S).tar.gz \
-          --exclude='.git' \
-          --exclude='node_modules' \
-          --exclude='tests' \
-          --exclude='.github' \
-          --exclude='.env.example' \
-          --exclude='README.md' \
-          .
+        # Create a clean directory for packaging
+        mkdir -p /tmp/odonto360-build
+        cp -r . /tmp/odonto360-build/
+        cd /tmp/odonto360-build
+        
+        # Remove unnecessary files and directories
+        rm -rf .git node_modules tests .github .env.example README.md
+        rm -rf storage/logs/* storage/framework/cache/* storage/framework/sessions/*
+        rm -rf bootstrap/cache/* vendor/composer/cache/*
+        
+        # Create the package
+        tar -czf /home/runner/work/odonto360/odonto360/odonto360-$(date +%Y%m%d-%H%M%S).tar.gz .
+        
+        # Clean up
+        cd /home/runner/work/odonto360/odonto360
+        rm -rf /tmp/odonto360-build
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
