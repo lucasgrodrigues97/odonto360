@@ -93,6 +93,12 @@ jobs:
           sleep 1
         done
 
+    - name: Clear and cache config
+      run: |
+        php artisan config:clear
+        php artisan cache:clear
+        php artisan config:cache
+
     - name: Run database migrations
       run: php artisan migrate --force
       env:
@@ -112,12 +118,6 @@ jobs:
         DB_DATABASE: ${{ env.MYSQL_DATABASE }}
         DB_USERNAME: root
         DB_PASSWORD: ${{ env.MYSQL_ROOT_PASSWORD }}
-
-    - name: Clear and cache config
-      run: |
-        php artisan config:clear
-        php artisan cache:clear
-        php artisan config:cache
 
     - name: Run PHPUnit tests
       run: php artisan test --coverage --coverage-clover=coverage.xml
