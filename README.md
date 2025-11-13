@@ -4,11 +4,14 @@
 
 O Odonto360 é um sistema completo de agendamento para clínicas odontológicas, desenvolvido como projeto de TCC. O sistema permite o gerenciamento de pacientes, dentistas, procedimentos e agendamentos, com funcionalidades avançadas de IA para sugestão de horários e integração com OAuth para autenticação.
 
-## 🚀 Tecnologias Utilizadas
-
 ### Credenciais
 - **Efetuar login como Admin** - email: admin@odonto360.com | senha: password
 - **Efetuar login como Usuário Comum** - email: joao.silva@odonto360.com | senha: password
+
+### Apresentação
+- **Vídeo** - Estou deixando o vídeo de apresentação no próprio repositório e também disponibilizei em um site gratuito na seguinte URL: https://ik.imagekit.io/vegw8unfh/Apresenta%C3%A7%C3%A3o.mp4?tr=orig&updatedAt=1762729019882
+
+## 🚀 Tecnologias Utilizadas
 
 ### Backend
 - **Laravel 10** - Framework PHP
