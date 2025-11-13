@@ -179,6 +179,18 @@ $(document).ready(function() {
             { data: 'actions', orderable: false, searchable: false }
         ]
     });
+    
+    // Listener para remover backdrop quando o modal for fechado
+    $('#newPatientModal').on('hidden.bs.modal', function () {
+        // Remover backdrop se existir
+        $('.modal-backdrop').remove();
+        // Remover classes e estilos do body
+        $('body').removeClass('modal-open');
+        $('body').css({
+            'overflow': '',
+            'padding-right': ''
+        });
+    });
 });
 
 function applyFilters() {
@@ -194,7 +206,96 @@ function exportPatients() {
 }
 
 function savePatient() {
-    // Implementar salvamento
+    // Validar formulário
+    const form = document.getElementById('patientForm');
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    // Coletar dados do formulário
+    const formData = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        cpf: document.getElementById('cpf').value,
+        phone: document.getElementById('phone').value,
+        birth_date: document.getElementById('birth_date').value,
+        gender: document.getElementById('gender').value,
+        address: document.getElementById('address').value,
+        _token: document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+    };
+
+    // Fazer requisição AJAX
+    $.ajax({
+        url: '/admin/patients',
+        method: 'POST',
+        data: formData,
+        dataType: 'json',
+        success: function(response) {
+            if (response.success) {
+                // Fechar modal usando jQuery/Bootstrap
+                $('#newPatientModal').modal('hide');
+                
+                // Limpar formulário
+                form.reset();
+                
+                // Recarregar tabela
+                if ($.fn.DataTable.isDataTable('#patientsTable')) {
+                    $('#patientsTable').DataTable().ajax.reload();
+                }
+                
+                // Mostrar mensagem de sucesso
+                if (typeof showToast === 'function') {
+                    showToast(response.message || 'Paciente criado com sucesso!', 'success');
+                } else {
+                    alert(response.message || 'Paciente criado com sucesso!');
+                }
+            } else {
+                // Mostrar mensagem de erro
+                if (typeof showToast === 'function') {
+                    showToast(response.message || 'Erro ao criar paciente', 'error');
+                } else {
+                    alert(response.message || 'Erro ao criar paciente');
+                }
+            }
+        },
+        error: function(xhr) {
+            let errorMessage = 'Erro ao criar paciente';
+            
+            if (xhr.responseJSON) {
+                // Priorizar mensagem descritiva do servidor
+                if (xhr.responseJSON.message) {
+                    errorMessage = xhr.responseJSON.message;
+                } else if (xhr.responseJSON.errors) {
+                    // Se não houver mensagem, construir a partir dos erros
+                    const errors = xhr.responseJSON.errors;
+                    const errorArray = [];
+                    
+                    // Coletar todas as mensagens de erro
+                    Object.keys(errors).forEach(function(field) {
+                        const fieldErrors = Array.isArray(errors[field]) ? errors[field] : [errors[field]];
+                        fieldErrors.forEach(function(err) {
+                            errorArray.push(err);
+                        });
+                    });
+                    
+                    errorMessage = errorArray.length > 0 
+                        ? errorArray.join(' ') 
+                        : 'Por favor, verifique os dados informados.';
+                }
+            } else if (xhr.status === 0) {
+                errorMessage = 'Erro de conexão. Verifique sua internet.';
+            } else if (xhr.status >= 500) {
+                errorMessage = 'Erro no servidor. Tente novamente mais tarde.';
+            }
+            
+            if (typeof showToast === 'function') {
+                showToast(errorMessage, 'error');
+            } else {
+                alert(errorMessage);
+            }
+        }
+    });
 }
 </script>
 @endsection

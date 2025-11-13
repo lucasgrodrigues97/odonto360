@@ -6,7 +6,10 @@ use App\Models\Appointment;
 use App\Models\Dentist;
 use App\Models\Patient;
 use App\Models\Procedure;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
 
 class AdminController extends Controller
 {
@@ -94,7 +97,7 @@ class AdminController extends Controller
                 'email' => $dentist->user->email,
                 'crm' => $dentist->crm,
                 'specialization' => ucfirst($dentist->specialization),
-                'consultation_fee' => 'R$ '.number_format($dentist->consultation_fee, 2, ',', '.'),
+                'consultation_fee' => 'R$ '.number_format($dentist->consultation_price, 2, ',', '.'),
                 'status' => $dentist->user->is_active ? 'Ativo' : 'Inativo',
                 'last_appointment' => $lastAppointment ? date('d/m/Y', strtotime($lastAppointment->appointment_date)) : 'Nunca',
                 'actions' => $this->getDentistActions($dentist->id),
@@ -412,5 +415,181 @@ class AdminController extends Controller
         }
 
         return $actions;
+    }
+
+    /**
+     * Store a new patient
+     */
+    public function storePatient(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'cpf' => 'required|string|max:14|unique:users',
+            'phone' => 'nullable|string|max:20',
+            'birth_date' => 'required|date',
+            'gender' => 'nullable|in:male,female,other',
+            'address' => 'nullable|string|max:500',
+        ], [
+            'name.required' => 'O nome completo é obrigatório.',
+            'name.max' => 'O nome não pode ter mais de 255 caracteres.',
+            'email.required' => 'O email é obrigatório.',
+            'email.email' => 'Por favor, informe um email válido.',
+            'email.unique' => 'Este email já está cadastrado no sistema.',
+            'email.max' => 'O email não pode ter mais de 255 caracteres.',
+            'cpf.required' => 'O CPF é obrigatório.',
+            'cpf.unique' => 'Este CPF já está cadastrado no sistema.',
+            'cpf.max' => 'O CPF não pode ter mais de 14 caracteres.',
+            'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
+            'birth_date.required' => 'A data de nascimento é obrigatória.',
+            'birth_date.date' => 'Por favor, informe uma data válida.',
+            'gender.in' => 'O gênero selecionado é inválido.',
+            'address.max' => 'O endereço não pode ter mais de 500 caracteres.',
+        ]);
+
+        if ($validator->fails()) {
+            // Criar mensagem descritiva baseada nos erros
+            $errors = $validator->errors();
+            $errorMessages = [];
+            
+            foreach ($errors->all() as $error) {
+                $errorMessages[] = $error;
+            }
+            
+            $message = count($errorMessages) === 1 
+                ? $errorMessages[0] 
+                : 'Por favor, corrija os seguintes erros: ' . implode(' ', $errorMessages);
+
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'errors' => $errors,
+            ], 422);
+        }
+
+        try {
+            // Criar usuário
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'cpf' => $request->cpf,
+                'phone' => $request->phone,
+                'birth_date' => $request->birth_date,
+                'gender' => $request->gender,
+                'address' => $request->address,
+                'password' => Hash::make('senha123'), // Senha padrão temporária
+                'is_active' => true,
+            ]);
+
+            // Atribuir role de paciente
+            $user->assignRole('patient');
+
+            // Criar registro de paciente
+            $patient = $user->patient()->create([
+                'patient_code' => 'PAT'.str_pad($user->id, 6, '0', STR_PAD_LEFT),
+                'is_active' => true,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Paciente criado com sucesso!',
+                'data' => $patient->load('user'),
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar paciente: '.$e->getMessage(),
+            ], 500);
+        }
+    }
+
+    /**
+     * Store a new dentist
+     */
+    public function storeDentist(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'crm' => 'required|string|max:20|unique:dentists',
+            'phone' => 'nullable|string|max:20',
+            'specialization' => 'required|string|max:255',
+            'consultation_fee' => 'required|numeric|min:0',
+            'bio' => 'nullable|string|max:1000',
+        ], [
+            'name.required' => 'O nome completo é obrigatório.',
+            'name.max' => 'O nome não pode ter mais de 255 caracteres.',
+            'email.required' => 'O email é obrigatório.',
+            'email.email' => 'Por favor, informe um email válido.',
+            'email.unique' => 'Este email já está cadastrado no sistema.',
+            'email.max' => 'O email não pode ter mais de 255 caracteres.',
+            'crm.required' => 'O CRM é obrigatório.',
+            'crm.unique' => 'Este CRM já está cadastrado no sistema.',
+            'crm.max' => 'O CRM não pode ter mais de 20 caracteres.',
+            'phone.max' => 'O telefone não pode ter mais de 20 caracteres.',
+            'specialization.required' => 'A especialização é obrigatória.',
+            'specialization.max' => 'A especialização não pode ter mais de 255 caracteres.',
+            'consultation_fee.required' => 'O valor da consulta é obrigatório.',
+            'consultation_fee.numeric' => 'O valor da consulta deve ser um número.',
+            'consultation_fee.min' => 'O valor da consulta não pode ser negativo.',
+            'bio.max' => 'A biografia não pode ter mais de 1000 caracteres.',
+        ]);
+
+        if ($validator->fails()) {
+            // Criar mensagem descritiva baseada nos erros
+            $errors = $validator->errors();
+            $errorMessages = [];
+            
+            foreach ($errors->all() as $error) {
+                $errorMessages[] = $error;
+            }
+            
+            $message = count($errorMessages) === 1 
+                ? $errorMessages[0] 
+                : 'Por favor, corrija os seguintes erros: ' . implode(' ', $errorMessages);
+
+            return response()->json([
+                'success' => false,
+                'message' => $message,
+                'errors' => $errors,
+            ], 422);
+        }
+
+        try {
+            // Criar usuário
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone' => $request->phone,
+                'password' => Hash::make('senha123'), // Senha padrão temporária
+                'is_active' => true,
+            ]);
+
+            // Atribuir role de dentista
+            $user->assignRole('dentist');
+
+            // Criar registro de dentista
+            $dentist = $user->dentist()->create([
+                'crm' => $request->crm,
+                'specialization' => $request->specialization,
+                'consultation_price' => $request->consultation_fee, // O formulário envia consultation_fee
+                'bio' => $request->bio,
+                'is_active' => true,
+                'available_days' => [1, 2, 3, 4, 5], // Segunda a sexta por padrão
+                'available_hours_start' => '08:00',
+                'available_hours_end' => '18:00',
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Dentista criado com sucesso!',
+                'data' => $dentist->load('user'),
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar dentista: '.$e->getMessage(),
+            ], 500);
+        }
     }
 }

@@ -6,6 +6,10 @@ O Odonto360 é um sistema completo de agendamento para clínicas odontológicas,
 
 ## 🚀 Tecnologias Utilizadas
 
+### Credenciais
+- **Efetuar login como Admin** - email: admin@odonto360.com | senha: password
+- **Efetuar login como Usuário Comum** - email: joao.silva@odonto360.com | senha: password
+
 ### Backend
 - **Laravel 10** - Framework PHP
 - **MySQL** - Banco de dados relacional

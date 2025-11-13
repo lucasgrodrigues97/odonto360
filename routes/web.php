@@ -200,7 +200,9 @@ Route::middleware(['auth'])->group(function () {
 
     // API routes for admin data
     Route::get('/admin/patients/data', [App\Http\Controllers\AdminController::class, 'getPatientsData'])->name('admin.patients.data');
+    Route::post('/admin/patients', [App\Http\Controllers\AdminController::class, 'storePatient'])->name('admin.patients.store');
     Route::get('/admin/dentists/data', [App\Http\Controllers\AdminController::class, 'getDentistsData'])->name('admin.dentists.data');
+    Route::post('/admin/dentists', [App\Http\Controllers\AdminController::class, 'storeDentist'])->name('admin.dentists.store');
     Route::get('/admin/procedures/data', [App\Http\Controllers\AdminController::class, 'getProceduresData'])->name('admin.procedures.data');
     Route::get('/admin/reports/data', [App\Http\Controllers\AdminController::class, 'getReportsData'])->name('admin.reports.data');
     Route::get('/admin/appointments/data', [App\Http\Controllers\AdminController::class, 'getAppointmentsData'])->name('admin.appointments.data');
