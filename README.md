@@ -9,7 +9,7 @@ O Odonto360 é um sistema completo de agendamento para clínicas odontológicas,
 - **Efetuar login como Usuário Comum** - email: joao.silva@odonto360.com | senha: password
 
 ### Apresentação
-- **Vídeo** - Está disponível para download nos comentários da entrega da tarefa no Canvas e estou deixando também no próprio repositório com o nome "Apresentação.mp4" na raiz do projeto. Disponibilizei em um site gratuito caso seja de preferência, na seguinte URL: https://ik.imagekit.io/vegw8unfh/Apresenta%C3%A7%C3%A3o.mp4?tr=orig&updatedAt=1762729019882
+- **Vídeo** - Está disponível para download nos comentários da entrega da tarefa no Canvas e estou deixando também no próprio repositório com o nome "Apresentação.mp4" na raiz do projeto (ao clicar em "View raw" o download será feito). Disponibilizei em um site gratuito caso seja de preferência, na seguinte URL: https://ik.imagekit.io/vegw8unfh/Apresenta%C3%A7%C3%A3o.mp4?tr=orig&updatedAt=1762729019882
 
 ## 🚀 Tecnologias Utilizadas
 
