@@ -451,14 +451,14 @@ class AdminController extends Controller
             // Criar mensagem descritiva baseada nos erros
             $errors = $validator->errors();
             $errorMessages = [];
-            
+
             foreach ($errors->all() as $error) {
                 $errorMessages[] = $error;
             }
-            
-            $message = count($errorMessages) === 1 
-                ? $errorMessages[0] 
-                : 'Por favor, corrija os seguintes erros: ' . implode(' ', $errorMessages);
+
+            $message = count($errorMessages) === 1
+                ? $errorMessages[0]
+                : 'Por favor, corrija os seguintes erros: '.implode(' ', $errorMessages);
 
             return response()->json([
                 'success' => false,
@@ -539,14 +539,14 @@ class AdminController extends Controller
             // Criar mensagem descritiva baseada nos erros
             $errors = $validator->errors();
             $errorMessages = [];
-            
+
             foreach ($errors->all() as $error) {
                 $errorMessages[] = $error;
             }
-            
-            $message = count($errorMessages) === 1 
-                ? $errorMessages[0] 
-                : 'Por favor, corrija os seguintes erros: ' . implode(' ', $errorMessages);
+
+            $message = count($errorMessages) === 1
+                ? $errorMessages[0]
+                : 'Por favor, corrija os seguintes erros: '.implode(' ', $errorMessages);
 
             return response()->json([
                 'success' => false,
